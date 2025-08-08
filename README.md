@@ -1,6 +1,4 @@
-# Integrating Task-Specific and Universal Adapters for
-Pre-Trained Model-based Class-Incremental Learning
-
+# Integrating Task-Specific and Universal Adapters for Pre-Trained Model-based Class-Incremental Learning
 <div align="center">
 <div>
   <a href='https://www.lamda.nju.edu.cn/wangy/' target='_blank'>Yan Wang</a>&emsp;
