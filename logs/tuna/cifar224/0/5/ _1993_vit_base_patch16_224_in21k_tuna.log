@@ -1,0 +1,421 @@
+2025-08-08 14:28:41,328 [trainer.py] => config: ./exps/tuna_cifar.json
+2025-08-08 14:28:41,329 [trainer.py] => prefix:  
+2025-08-08 14:28:41,329 [trainer.py] => dataset: cifar224
+2025-08-08 14:28:41,329 [trainer.py] => memory_size: 0
+2025-08-08 14:28:41,329 [trainer.py] => memory_per_class: 0
+2025-08-08 14:28:41,329 [trainer.py] => fixed_memory: False
+2025-08-08 14:28:41,329 [trainer.py] => shuffle: True
+2025-08-08 14:28:41,329 [trainer.py] => init_cls: 5
+2025-08-08 14:28:41,329 [trainer.py] => increment: 5
+2025-08-08 14:28:41,329 [trainer.py] => model_name: tuna
+2025-08-08 14:28:41,329 [trainer.py] => backbone_type: vit_base_patch16_224_in21k_tuna
+2025-08-08 14:28:41,329 [trainer.py] => device: [device(type='cuda', index=2)]
+2025-08-08 14:28:41,329 [trainer.py] => seed: 1993
+2025-08-08 14:28:41,329 [trainer.py] => tuned_epoch: 15
+2025-08-08 14:28:41,329 [trainer.py] => init_lr: 0.01
+2025-08-08 14:28:41,329 [trainer.py] => batch_size: 16
+2025-08-08 14:28:41,329 [trainer.py] => weight_decay: 0.0005
+2025-08-08 14:28:41,329 [trainer.py] => min_lr: 0
+2025-08-08 14:28:41,329 [trainer.py] => optimizer: sgd
+2025-08-08 14:28:41,329 [trainer.py] => scheduler: cosine
+2025-08-08 14:28:41,329 [trainer.py] => reinit_optimizer: True
+2025-08-08 14:28:41,329 [trainer.py] => init_milestones: [10]
+2025-08-08 14:28:41,330 [trainer.py] => init_lr_decay: 0.1
+2025-08-08 14:28:41,330 [trainer.py] => reg: 0.001
+2025-08-08 14:28:41,330 [trainer.py] => use_orth: True
+2025-08-08 14:28:41,330 [trainer.py] => crct_epochs: 30
+2025-08-08 14:28:41,330 [trainer.py] => ca_lr: 0.005
+2025-08-08 14:28:41,330 [trainer.py] => ca_storage_efficient_method: covariance
+2025-08-08 14:28:41,330 [trainer.py] => ca_storage_efficient_method_choices: ['covariance', 'variance']
+2025-08-08 14:28:41,330 [trainer.py] => decay: False
+2025-08-08 14:28:41,330 [trainer.py] => pretrained: True
+2025-08-08 14:28:41,330 [trainer.py] => drop: 0.0
+2025-08-08 14:28:41,330 [trainer.py] => drop_path: 0.0
+2025-08-08 14:28:41,330 [trainer.py] => r: 16
+2025-08-08 14:28:41,330 [trainer.py] => scale: 20.0
+2025-08-08 14:28:41,330 [trainer.py] => m: 0.0
+2025-08-08 14:28:43,326 [data_manager.py] => [68, 56, 78, 8, 23, 84, 90, 65, 74, 76, 40, 89, 3, 92, 55, 9, 26, 80, 43, 38, 58, 70, 77, 1, 85, 19, 17, 50, 28, 53, 13, 81, 45, 82, 6, 59, 83, 16, 15, 44, 91, 41, 72, 60, 79, 52, 20, 10, 31, 54, 37, 95, 14, 71, 96, 98, 97, 2, 64, 66, 42, 22, 35, 86, 24, 34, 87, 21, 99, 0, 88, 27, 18, 94, 11, 12, 47, 25, 30, 46, 62, 69, 36, 61, 7, 63, 75, 5, 32, 4, 51, 48, 73, 93, 39, 67, 29, 49, 57, 33]
+2025-08-08 14:28:48,228 [tuna.py] => 86,179,876 model total parameters.
+2025-08-08 14:28:48,228 [tuna.py] => 381,220 model training parameters.
+2025-08-08 14:28:48,229 [tuna.py] => backbone.head.weight: 76800
+2025-08-08 14:28:48,229 [tuna.py] => backbone.head.bias: 100
+2025-08-08 14:28:48,229 [tuna.py] => backbone.cur_adapter.0.down_proj.weight: 12288
+2025-08-08 14:28:48,229 [tuna.py] => backbone.cur_adapter.0.down_proj.bias: 16
+2025-08-08 14:28:48,229 [tuna.py] => backbone.cur_adapter.0.up_proj.weight: 12288
+2025-08-08 14:28:48,229 [tuna.py] => backbone.cur_adapter.0.up_proj.bias: 768
+2025-08-08 14:28:48,229 [tuna.py] => backbone.cur_adapter.1.down_proj.weight: 12288
+2025-08-08 14:28:48,229 [tuna.py] => backbone.cur_adapter.1.down_proj.bias: 16
+2025-08-08 14:28:48,229 [tuna.py] => backbone.cur_adapter.1.up_proj.weight: 12288
+2025-08-08 14:28:48,229 [tuna.py] => backbone.cur_adapter.1.up_proj.bias: 768
+2025-08-08 14:28:48,229 [tuna.py] => backbone.cur_adapter.2.down_proj.weight: 12288
+2025-08-08 14:28:48,229 [tuna.py] => backbone.cur_adapter.2.down_proj.bias: 16
+2025-08-08 14:28:48,229 [tuna.py] => backbone.cur_adapter.2.up_proj.weight: 12288
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.2.up_proj.bias: 768
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.3.down_proj.weight: 12288
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.3.down_proj.bias: 16
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.3.up_proj.weight: 12288
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.3.up_proj.bias: 768
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.4.down_proj.weight: 12288
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.4.down_proj.bias: 16
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.4.up_proj.weight: 12288
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.4.up_proj.bias: 768
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.5.down_proj.weight: 12288
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.5.down_proj.bias: 16
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.5.up_proj.weight: 12288
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.5.up_proj.bias: 768
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.6.down_proj.weight: 12288
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.6.down_proj.bias: 16
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.6.up_proj.weight: 12288
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.6.up_proj.bias: 768
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.7.down_proj.weight: 12288
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.7.down_proj.bias: 16
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.7.up_proj.weight: 12288
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.7.up_proj.bias: 768
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.8.down_proj.weight: 12288
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.8.down_proj.bias: 16
+2025-08-08 14:28:48,230 [tuna.py] => backbone.cur_adapter.8.up_proj.weight: 12288
+2025-08-08 14:28:48,231 [tuna.py] => backbone.cur_adapter.8.up_proj.bias: 768
+2025-08-08 14:28:48,231 [tuna.py] => backbone.cur_adapter.9.down_proj.weight: 12288
+2025-08-08 14:28:48,231 [tuna.py] => backbone.cur_adapter.9.down_proj.bias: 16
+2025-08-08 14:28:48,231 [tuna.py] => backbone.cur_adapter.9.up_proj.weight: 12288
+2025-08-08 14:28:48,231 [tuna.py] => backbone.cur_adapter.9.up_proj.bias: 768
+2025-08-08 14:28:48,231 [tuna.py] => backbone.cur_adapter.10.down_proj.weight: 12288
+2025-08-08 14:28:48,231 [tuna.py] => backbone.cur_adapter.10.down_proj.bias: 16
+2025-08-08 14:28:48,231 [tuna.py] => backbone.cur_adapter.10.up_proj.weight: 12288
+2025-08-08 14:28:48,231 [tuna.py] => backbone.cur_adapter.10.up_proj.bias: 768
+2025-08-08 14:28:48,231 [tuna.py] => backbone.cur_adapter.11.down_proj.weight: 12288
+2025-08-08 14:28:48,231 [tuna.py] => backbone.cur_adapter.11.down_proj.bias: 16
+2025-08-08 14:28:48,231 [tuna.py] => backbone.cur_adapter.11.up_proj.weight: 12288
+2025-08-08 14:28:48,231 [tuna.py] => backbone.cur_adapter.11.up_proj.bias: 768
+2025-08-08 14:28:48,232 [trainer.py] => All params: 86179876
+2025-08-08 14:28:48,232 [trainer.py] => Trainable params: 381220
+2025-08-08 14:28:48,233 [tuna.py] => Learning on 0-5
+2025-08-08 14:30:41,823 [trainer.py] => config: ./exps/tuna_cifar.json
+2025-08-08 14:30:41,823 [trainer.py] => prefix:  
+2025-08-08 14:30:41,824 [trainer.py] => dataset: cifar224
+2025-08-08 14:30:41,824 [trainer.py] => memory_size: 0
+2025-08-08 14:30:41,824 [trainer.py] => memory_per_class: 0
+2025-08-08 14:30:41,824 [trainer.py] => fixed_memory: False
+2025-08-08 14:30:41,824 [trainer.py] => shuffle: True
+2025-08-08 14:30:41,824 [trainer.py] => init_cls: 5
+2025-08-08 14:30:41,824 [trainer.py] => increment: 5
+2025-08-08 14:30:41,824 [trainer.py] => model_name: tuna
+2025-08-08 14:30:41,824 [trainer.py] => backbone_type: vit_base_patch16_224_in21k_tuna
+2025-08-08 14:30:41,824 [trainer.py] => device: [device(type='cuda', index=2)]
+2025-08-08 14:30:41,824 [trainer.py] => seed: 1993
+2025-08-08 14:30:41,824 [trainer.py] => tuned_epoch: 15
+2025-08-08 14:30:41,824 [trainer.py] => init_lr: 0.01
+2025-08-08 14:30:41,824 [trainer.py] => batch_size: 16
+2025-08-08 14:30:41,824 [trainer.py] => weight_decay: 0.0005
+2025-08-08 14:30:41,824 [trainer.py] => min_lr: 0
+2025-08-08 14:30:41,824 [trainer.py] => optimizer: sgd
+2025-08-08 14:30:41,824 [trainer.py] => scheduler: cosine
+2025-08-08 14:30:41,824 [trainer.py] => reinit_optimizer: True
+2025-08-08 14:30:41,824 [trainer.py] => init_milestones: [10]
+2025-08-08 14:30:41,824 [trainer.py] => init_lr_decay: 0.1
+2025-08-08 14:30:41,824 [trainer.py] => reg: 0.001
+2025-08-08 14:30:41,824 [trainer.py] => use_orth: False
+2025-08-08 14:30:41,824 [trainer.py] => crct_epochs: 30
+2025-08-08 14:30:41,824 [trainer.py] => ca_lr: 0.005
+2025-08-08 14:30:41,824 [trainer.py] => ca_storage_efficient_method: covariance
+2025-08-08 14:30:41,824 [trainer.py] => ca_storage_efficient_method_choices: ['covariance', 'variance']
+2025-08-08 14:30:41,824 [trainer.py] => decay: False
+2025-08-08 14:30:41,825 [trainer.py] => pretrained: True
+2025-08-08 14:30:41,825 [trainer.py] => drop: 0.0
+2025-08-08 14:30:41,825 [trainer.py] => drop_path: 0.0
+2025-08-08 14:30:41,825 [trainer.py] => r: 16
+2025-08-08 14:30:41,825 [trainer.py] => scale: 20.0
+2025-08-08 14:30:41,825 [trainer.py] => m: 0.0
+2025-08-08 14:30:43,523 [data_manager.py] => [68, 56, 78, 8, 23, 84, 90, 65, 74, 76, 40, 89, 3, 92, 55, 9, 26, 80, 43, 38, 58, 70, 77, 1, 85, 19, 17, 50, 28, 53, 13, 81, 45, 82, 6, 59, 83, 16, 15, 44, 91, 41, 72, 60, 79, 52, 20, 10, 31, 54, 37, 95, 14, 71, 96, 98, 97, 2, 64, 66, 42, 22, 35, 86, 24, 34, 87, 21, 99, 0, 88, 27, 18, 94, 11, 12, 47, 25, 30, 46, 62, 69, 36, 61, 7, 63, 75, 5, 32, 4, 51, 48, 73, 93, 39, 67, 29, 49, 57, 33]
+2025-08-08 14:30:49,299 [tuna.py] => 86,179,876 model total parameters.
+2025-08-08 14:30:49,300 [tuna.py] => 381,220 model training parameters.
+2025-08-08 14:30:49,301 [tuna.py] => backbone.head.weight: 76800
+2025-08-08 14:30:49,301 [tuna.py] => backbone.head.bias: 100
+2025-08-08 14:30:49,301 [tuna.py] => backbone.cur_adapter.0.down_proj.weight: 12288
+2025-08-08 14:30:49,301 [tuna.py] => backbone.cur_adapter.0.down_proj.bias: 16
+2025-08-08 14:30:49,301 [tuna.py] => backbone.cur_adapter.0.up_proj.weight: 12288
+2025-08-08 14:30:49,301 [tuna.py] => backbone.cur_adapter.0.up_proj.bias: 768
+2025-08-08 14:30:49,301 [tuna.py] => backbone.cur_adapter.1.down_proj.weight: 12288
+2025-08-08 14:30:49,301 [tuna.py] => backbone.cur_adapter.1.down_proj.bias: 16
+2025-08-08 14:30:49,301 [tuna.py] => backbone.cur_adapter.1.up_proj.weight: 12288
+2025-08-08 14:30:49,301 [tuna.py] => backbone.cur_adapter.1.up_proj.bias: 768
+2025-08-08 14:30:49,301 [tuna.py] => backbone.cur_adapter.2.down_proj.weight: 12288
+2025-08-08 14:30:49,301 [tuna.py] => backbone.cur_adapter.2.down_proj.bias: 16
+2025-08-08 14:30:49,301 [tuna.py] => backbone.cur_adapter.2.up_proj.weight: 12288
+2025-08-08 14:30:49,301 [tuna.py] => backbone.cur_adapter.2.up_proj.bias: 768
+2025-08-08 14:30:49,301 [tuna.py] => backbone.cur_adapter.3.down_proj.weight: 12288
+2025-08-08 14:30:49,301 [tuna.py] => backbone.cur_adapter.3.down_proj.bias: 16
+2025-08-08 14:30:49,301 [tuna.py] => backbone.cur_adapter.3.up_proj.weight: 12288
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.3.up_proj.bias: 768
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.4.down_proj.weight: 12288
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.4.down_proj.bias: 16
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.4.up_proj.weight: 12288
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.4.up_proj.bias: 768
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.5.down_proj.weight: 12288
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.5.down_proj.bias: 16
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.5.up_proj.weight: 12288
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.5.up_proj.bias: 768
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.6.down_proj.weight: 12288
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.6.down_proj.bias: 16
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.6.up_proj.weight: 12288
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.6.up_proj.bias: 768
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.7.down_proj.weight: 12288
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.7.down_proj.bias: 16
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.7.up_proj.weight: 12288
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.7.up_proj.bias: 768
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.8.down_proj.weight: 12288
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.8.down_proj.bias: 16
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.8.up_proj.weight: 12288
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.8.up_proj.bias: 768
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.9.down_proj.weight: 12288
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.9.down_proj.bias: 16
+2025-08-08 14:30:49,302 [tuna.py] => backbone.cur_adapter.9.up_proj.weight: 12288
+2025-08-08 14:30:49,303 [tuna.py] => backbone.cur_adapter.9.up_proj.bias: 768
+2025-08-08 14:30:49,303 [tuna.py] => backbone.cur_adapter.10.down_proj.weight: 12288
+2025-08-08 14:30:49,303 [tuna.py] => backbone.cur_adapter.10.down_proj.bias: 16
+2025-08-08 14:30:49,303 [tuna.py] => backbone.cur_adapter.10.up_proj.weight: 12288
+2025-08-08 14:30:49,303 [tuna.py] => backbone.cur_adapter.10.up_proj.bias: 768
+2025-08-08 14:30:49,303 [tuna.py] => backbone.cur_adapter.11.down_proj.weight: 12288
+2025-08-08 14:30:49,303 [tuna.py] => backbone.cur_adapter.11.down_proj.bias: 16
+2025-08-08 14:30:49,303 [tuna.py] => backbone.cur_adapter.11.up_proj.weight: 12288
+2025-08-08 14:30:49,303 [tuna.py] => backbone.cur_adapter.11.up_proj.bias: 768
+2025-08-08 14:30:49,304 [trainer.py] => All params: 86179876
+2025-08-08 14:30:49,304 [trainer.py] => Trainable params: 381220
+2025-08-08 14:30:49,305 [tuna.py] => Learning on 0-5
+2025-08-08 14:34:23,695 [tuna.py] => Task 0, Epoch 15/15 => Loss 0.104, Train_accy 96.72
+2025-08-08 14:34:32,788 [trainer.py] => No NME accuracy.
+2025-08-08 14:34:32,789 [trainer.py] => CNN: {'total': 99.8, '00-04': 99.8, 'old': 0, 'new': 99.8}
+2025-08-08 14:34:32,789 [trainer.py] => CNN top1 curve: [99.8]
+2025-08-08 14:34:32,789 [trainer.py] => CNN top5 curve: [100.0]
+
+2025-08-08 14:34:32,789 [trainer.py] => Average Accuracy (CNN): 99.8 
+
+2025-08-08 14:34:32,791 [trainer.py] => All params: 86488036
+2025-08-08 14:34:32,792 [trainer.py] => Trainable params: 689380
+2025-08-08 14:34:32,794 [tuna.py] => Learning on 5-10
+2025-08-08 14:38:04,406 [tuna.py] => Task 1, Epoch 15/15 => Loss 0.117, Train_accy 92.52
+2025-08-08 14:38:14,350 [tuna.py] => Task 1, Epoch 30/30 => Loss 0.023, CA_accy 100.00
+2025-08-08 14:38:19,511 [trainer.py] => No NME accuracy.
+2025-08-08 14:38:19,511 [trainer.py] => CNN: {'total': 98.7, '00-04': 99.4, '05-09': 98.0, 'old': 99.4, 'new': 98.0}
+2025-08-08 14:38:19,518 [trainer.py] => CNN top1 curve: [99.8, 98.7]
+2025-08-08 14:38:19,518 [trainer.py] => CNN top5 curve: [100.0, 99.9]
+
+2025-08-08 14:38:19,518 [trainer.py] => Average Accuracy (CNN): 99.25 
+
+2025-08-08 14:38:19,519 [trainer.py] => All params: 87100516
+2025-08-08 14:38:19,520 [trainer.py] => Trainable params: 1301860
+2025-08-08 14:38:19,521 [tuna.py] => Learning on 10-15
+2025-08-08 14:41:54,056 [tuna.py] => Task 2, Epoch 15/15 => Loss 0.117, Train_accy 90.28
+2025-08-08 14:42:01,733 [tuna.py] => Task 2, Epoch 30/30 => Loss 0.034, CA_accy 99.75
+2025-08-08 14:42:11,937 [trainer.py] => No NME accuracy.
+2025-08-08 14:42:11,938 [trainer.py] => CNN: {'total': 98.07, '00-04': 99.2, '05-09': 97.0, '10-14': 98.0, 'old': 98.1, 'new': 98.0}
+2025-08-08 14:42:11,938 [trainer.py] => CNN top1 curve: [99.8, 98.7, 98.07]
+2025-08-08 14:42:11,938 [trainer.py] => CNN top5 curve: [100.0, 99.9, 99.8]
+
+2025-08-08 14:42:11,938 [trainer.py] => Average Accuracy (CNN): 98.85666666666667 
+
+2025-08-08 14:42:11,941 [trainer.py] => All params: 87408676
+2025-08-08 14:42:11,943 [trainer.py] => Trainable params: 1610020
+2025-08-08 14:42:11,943 [tuna.py] => Learning on 15-20
+2025-08-08 14:45:53,902 [tuna.py] => Task 3, Epoch 15/15 => Loss 0.142, Train_accy 87.20
+2025-08-08 14:46:02,758 [tuna.py] => Task 3, Epoch 30/30 => Loss 0.030, CA_accy 100.00
+2025-08-08 14:46:26,550 [trainer.py] => No NME accuracy.
+2025-08-08 14:46:26,550 [trainer.py] => CNN: {'total': 97.25, '00-04': 99.2, '05-09': 96.8, '10-14': 97.6, '15-19': 95.4, 'old': 97.87, 'new': 95.4}
+2025-08-08 14:46:26,550 [trainer.py] => CNN top1 curve: [99.8, 98.7, 98.07, 97.25]
+2025-08-08 14:46:26,550 [trainer.py] => CNN top5 curve: [100.0, 99.9, 99.8, 99.75]
+
+2025-08-08 14:46:26,550 [trainer.py] => Average Accuracy (CNN): 98.455 
+
+2025-08-08 14:46:26,552 [trainer.py] => All params: 87716836
+2025-08-08 14:46:26,553 [trainer.py] => Trainable params: 1918180
+2025-08-08 14:46:26,554 [tuna.py] => Learning on 20-25
+2025-08-08 14:50:16,837 [tuna.py] => Task 4, Epoch 15/15 => Loss 0.068, Train_accy 91.44
+2025-08-08 14:50:26,998 [tuna.py] => Task 4, Epoch 30/30 => Loss 0.028, CA_accy 99.95
+2025-08-08 14:50:50,899 [trainer.py] => No NME accuracy.
+2025-08-08 14:50:50,899 [trainer.py] => CNN: {'total': 97.44, '00-04': 98.8, '05-09': 97.2, '10-14': 96.0, '15-19': 96.0, '20-24': 99.2, 'old': 97.0, 'new': 99.2}
+2025-08-08 14:50:50,899 [trainer.py] => CNN top1 curve: [99.8, 98.7, 98.07, 97.25, 97.44]
+2025-08-08 14:50:50,899 [trainer.py] => CNN top5 curve: [100.0, 99.9, 99.8, 99.75, 99.68]
+
+2025-08-08 14:50:50,899 [trainer.py] => Average Accuracy (CNN): 98.252 
+
+2025-08-08 14:50:50,902 [trainer.py] => All params: 88024996
+2025-08-08 14:50:50,905 [trainer.py] => Trainable params: 2226340
+2025-08-08 14:50:50,906 [tuna.py] => Learning on 25-30
+2025-08-08 14:54:45,739 [tuna.py] => Task 5, Epoch 15/15 => Loss 0.060, Train_accy 90.92
+2025-08-08 14:54:57,301 [tuna.py] => Task 5, Epoch 30/30 => Loss 0.032, CA_accy 99.92
+2025-08-08 14:55:38,010 [trainer.py] => No NME accuracy.
+2025-08-08 14:55:38,011 [trainer.py] => CNN: {'total': 96.4, '00-04': 98.6, '05-09': 94.8, '10-14': 94.4, '15-19': 95.6, '20-24': 98.6, '25-29': 96.4, 'old': 96.4, 'new': 96.4}
+2025-08-08 14:55:38,011 [trainer.py] => CNN top1 curve: [99.8, 98.7, 98.07, 97.25, 97.44, 96.4]
+2025-08-08 14:55:38,011 [trainer.py] => CNN top5 curve: [100.0, 99.9, 99.8, 99.75, 99.68, 99.63]
+
+2025-08-08 14:55:38,011 [trainer.py] => Average Accuracy (CNN): 97.94333333333333 
+
+2025-08-08 14:55:38,013 [trainer.py] => All params: 88333156
+2025-08-08 14:55:38,014 [trainer.py] => Trainable params: 2534500
+2025-08-08 14:55:38,015 [tuna.py] => Learning on 30-35
+2025-08-08 14:59:43,142 [tuna.py] => Task 6, Epoch 15/15 => Loss 0.151, Train_accy 73.48
+2025-08-08 14:59:56,893 [tuna.py] => Task 6, Epoch 30/30 => Loss 0.037, CA_accy 99.71
+2025-08-08 15:00:40,558 [trainer.py] => No NME accuracy.
+2025-08-08 15:00:40,558 [trainer.py] => CNN: {'total': 95.8, '00-04': 98.6, '05-09': 94.6, '10-14': 94.4, '15-19': 94.4, '20-24': 99.2, '25-29': 96.4, '30-34': 93.0, 'old': 96.27, 'new': 93.0}
+2025-08-08 15:00:40,558 [trainer.py] => CNN top1 curve: [99.8, 98.7, 98.07, 97.25, 97.44, 96.4, 95.8]
+2025-08-08 15:00:40,558 [trainer.py] => CNN top5 curve: [100.0, 99.9, 99.8, 99.75, 99.68, 99.63, 99.51]
+
+2025-08-08 15:00:40,558 [trainer.py] => Average Accuracy (CNN): 97.63714285714285 
+
+2025-08-08 15:00:40,560 [trainer.py] => All params: 88641316
+2025-08-08 15:00:40,562 [trainer.py] => Trainable params: 2842660
+2025-08-08 15:00:40,570 [tuna.py] => Learning on 35-40
+2025-08-08 15:04:42,148 [tuna.py] => Task 7, Epoch 15/15 => Loss 0.066, Train_accy 85.00
+2025-08-08 15:04:59,369 [tuna.py] => Task 7, Epoch 30/30 => Loss 0.036, CA_accy 99.81
+2025-08-08 15:05:57,821 [trainer.py] => No NME accuracy.
+2025-08-08 15:05:57,821 [trainer.py] => CNN: {'total': 95.65, '00-04': 98.6, '05-09': 94.6, '10-14': 94.8, '15-19': 94.4, '20-24': 98.4, '25-29': 95.8, '30-34': 92.8, '35-39': 95.8, 'old': 95.63, 'new': 95.8}
+2025-08-08 15:05:57,822 [trainer.py] => CNN top1 curve: [99.8, 98.7, 98.07, 97.25, 97.44, 96.4, 95.8, 95.65]
+2025-08-08 15:05:57,822 [trainer.py] => CNN top5 curve: [100.0, 99.9, 99.8, 99.75, 99.68, 99.63, 99.51, 99.52]
+
+2025-08-08 15:05:57,822 [trainer.py] => Average Accuracy (CNN): 97.38874999999999 
+
+2025-08-08 15:05:57,824 [trainer.py] => All params: 88949476
+2025-08-08 15:05:57,827 [trainer.py] => Trainable params: 3150820
+2025-08-08 15:05:57,828 [tuna.py] => Learning on 40-45
+2025-08-08 15:10:10,105 [tuna.py] => Task 8, Epoch 15/15 => Loss 0.107, Train_accy 80.04
+2025-08-08 15:10:29,068 [tuna.py] => Task 8, Epoch 30/30 => Loss 0.039, CA_accy 99.72
+2025-08-08 15:11:55,078 [trainer.py] => No NME accuracy.
+2025-08-08 15:11:55,079 [trainer.py] => CNN: {'total': 95.24, '00-04': 97.6, '05-09': 95.0, '10-14': 93.2, '15-19': 94.2, '20-24': 98.8, '25-29': 95.4, '30-34': 93.2, '35-39': 96.4, '40-44': 93.4, 'old': 95.48, 'new': 93.4}
+2025-08-08 15:11:55,079 [trainer.py] => CNN top1 curve: [99.8, 98.7, 98.07, 97.25, 97.44, 96.4, 95.8, 95.65, 95.24]
+2025-08-08 15:11:55,079 [trainer.py] => CNN top5 curve: [100.0, 99.9, 99.8, 99.75, 99.68, 99.63, 99.51, 99.52, 99.47]
+
+2025-08-08 15:11:55,079 [trainer.py] => Average Accuracy (CNN): 97.14999999999999 
+
+2025-08-08 15:11:55,081 [trainer.py] => All params: 89257636
+2025-08-08 15:11:55,083 [trainer.py] => Trainable params: 3458980
+2025-08-08 15:11:55,084 [tuna.py] => Learning on 45-50
+2025-08-08 15:15:45,187 [tuna.py] => Task 9, Epoch 15/15 => Loss 0.045, Train_accy 80.84
+2025-08-08 15:16:00,749 [tuna.py] => Task 9, Epoch 30/30 => Loss 0.034, CA_accy 99.82
+2025-08-08 15:17:13,390 [trainer.py] => No NME accuracy.
+2025-08-08 15:17:13,390 [trainer.py] => CNN: {'total': 94.64, '00-04': 97.2, '05-09': 93.8, '10-14': 92.0, '15-19': 94.0, '20-24': 98.2, '25-29': 94.0, '30-34': 93.2, '35-39': 94.6, '40-44': 94.2, '45-49': 95.2, 'old': 94.58, 'new': 95.2}
+2025-08-08 15:17:13,390 [trainer.py] => CNN top1 curve: [99.8, 98.7, 98.07, 97.25, 97.44, 96.4, 95.8, 95.65, 95.24, 94.64]
+2025-08-08 15:17:13,390 [trainer.py] => CNN top5 curve: [100.0, 99.9, 99.8, 99.75, 99.68, 99.63, 99.51, 99.52, 99.47, 99.42]
+
+2025-08-08 15:17:13,390 [trainer.py] => Average Accuracy (CNN): 96.89899999999999 
+
+2025-08-08 15:17:13,392 [trainer.py] => All params: 89565796
+2025-08-08 15:17:13,394 [trainer.py] => Trainable params: 3767140
+2025-08-08 15:17:13,407 [tuna.py] => Learning on 50-55
+2025-08-08 15:19:31,559 [tuna.py] => Task 10, Epoch 15/15 => Loss 0.070, Train_accy 79.28
+2025-08-08 15:19:49,705 [tuna.py] => Task 10, Epoch 30/30 => Loss 0.042, CA_accy 99.59
+2025-08-08 15:21:16,516 [trainer.py] => No NME accuracy.
+2025-08-08 15:21:16,516 [trainer.py] => CNN: {'total': 93.95, '00-04': 96.0, '05-09': 93.8, '10-14': 92.4, '15-19': 94.0, '20-24': 97.8, '25-29': 92.6, '30-34': 92.4, '35-39': 94.6, '40-44': 93.6, '45-49': 94.0, '50-54': 92.2, 'old': 94.12, 'new': 92.2}
+2025-08-08 15:21:16,516 [trainer.py] => CNN top1 curve: [99.8, 98.7, 98.07, 97.25, 97.44, 96.4, 95.8, 95.65, 95.24, 94.64, 93.95]
+2025-08-08 15:21:16,516 [trainer.py] => CNN top5 curve: [100.0, 99.9, 99.8, 99.75, 99.68, 99.63, 99.51, 99.52, 99.47, 99.42, 99.55]
+
+2025-08-08 15:21:16,516 [trainer.py] => Average Accuracy (CNN): 96.63090909090907 
+
+2025-08-08 15:21:16,518 [trainer.py] => All params: 89873956
+2025-08-08 15:21:16,520 [trainer.py] => Trainable params: 4075300
+2025-08-08 15:21:16,521 [tuna.py] => Learning on 55-60
+2025-08-08 15:23:40,323 [tuna.py] => Task 11, Epoch 15/15 => Loss 0.171, Train_accy 82.08
+2025-08-08 15:23:59,920 [tuna.py] => Task 11, Epoch 30/30 => Loss 0.041, CA_accy 99.71
+2025-08-08 15:25:42,811 [trainer.py] => No NME accuracy.
+2025-08-08 15:25:42,811 [trainer.py] => CNN: {'total': 94.12, '00-04': 96.2, '05-09': 93.0, '10-14': 92.8, '15-19': 94.8, '20-24': 97.6, '25-29': 92.2, '30-34': 92.8, '35-39': 94.6, '40-44': 93.6, '45-49': 94.2, '50-54': 92.2, '55-59': 95.4, 'old': 94.0, 'new': 95.4}
+2025-08-08 15:25:42,812 [trainer.py] => CNN top1 curve: [99.8, 98.7, 98.07, 97.25, 97.44, 96.4, 95.8, 95.65, 95.24, 94.64, 93.95, 94.12]
+2025-08-08 15:25:42,812 [trainer.py] => CNN top5 curve: [100.0, 99.9, 99.8, 99.75, 99.68, 99.63, 99.51, 99.52, 99.47, 99.42, 99.55, 99.37]
+
+2025-08-08 15:25:42,812 [trainer.py] => Average Accuracy (CNN): 96.42166666666667 
+
+2025-08-08 15:25:42,814 [trainer.py] => All params: 90182116
+2025-08-08 15:25:42,816 [trainer.py] => Trainable params: 4383460
+2025-08-08 15:25:42,818 [tuna.py] => Learning on 60-65
+2025-08-08 15:28:08,130 [tuna.py] => Task 12, Epoch 15/15 => Loss 0.082, Train_accy 85.88
+2025-08-08 15:28:29,561 [tuna.py] => Task 12, Epoch 30/30 => Loss 0.042, CA_accy 99.54
+2025-08-08 15:30:29,366 [trainer.py] => No NME accuracy.
+2025-08-08 15:30:29,366 [trainer.py] => CNN: {'total': 93.74, '00-04': 96.2, '05-09': 92.8, '10-14': 92.2, '15-19': 94.0, '20-24': 97.6, '25-29': 92.8, '30-34': 93.0, '35-39': 94.6, '40-44': 93.8, '45-49': 93.2, '50-54': 92.2, '55-59': 92.0, '60-64': 94.2, 'old': 93.7, 'new': 94.2}
+2025-08-08 15:30:29,366 [trainer.py] => CNN top1 curve: [99.8, 98.7, 98.07, 97.25, 97.44, 96.4, 95.8, 95.65, 95.24, 94.64, 93.95, 94.12, 93.74]
+2025-08-08 15:30:29,366 [trainer.py] => CNN top5 curve: [100.0, 99.9, 99.8, 99.75, 99.68, 99.63, 99.51, 99.52, 99.47, 99.42, 99.55, 99.37, 99.4]
+
+2025-08-08 15:30:29,367 [trainer.py] => Average Accuracy (CNN): 96.21538461538461 
+
+2025-08-08 15:30:29,369 [trainer.py] => All params: 90490276
+2025-08-08 15:30:29,371 [trainer.py] => Trainable params: 4691620
+2025-08-08 15:30:29,372 [tuna.py] => Learning on 65-70
+2025-08-08 15:32:53,583 [tuna.py] => Task 13, Epoch 15/15 => Loss 0.073, Train_accy 86.12
+2025-08-08 15:33:17,616 [tuna.py] => Task 13, Epoch 30/30 => Loss 0.036, CA_accy 99.77
+2025-08-08 15:35:36,079 [trainer.py] => No NME accuracy.
+2025-08-08 15:35:36,080 [trainer.py] => CNN: {'total': 93.71, '00-04': 94.2, '05-09': 93.4, '10-14': 92.0, '15-19': 93.8, '20-24': 97.6, '25-29': 92.8, '30-34': 93.0, '35-39': 94.8, '40-44': 93.6, '45-49': 92.4, '50-54': 93.0, '55-59': 91.8, '60-64': 93.6, '65-69': 96.0, 'old': 93.54, 'new': 96.0}
+2025-08-08 15:35:36,080 [trainer.py] => CNN top1 curve: [99.8, 98.7, 98.07, 97.25, 97.44, 96.4, 95.8, 95.65, 95.24, 94.64, 93.95, 94.12, 93.74, 93.71]
+2025-08-08 15:35:36,080 [trainer.py] => CNN top5 curve: [100.0, 99.9, 99.8, 99.75, 99.68, 99.63, 99.51, 99.52, 99.47, 99.42, 99.55, 99.37, 99.4, 99.44]
+
+2025-08-08 15:35:36,080 [trainer.py] => Average Accuracy (CNN): 96.03642857142857 
+
+2025-08-08 15:35:36,082 [trainer.py] => All params: 90798436
+2025-08-08 15:35:36,085 [trainer.py] => Trainable params: 4999780
+2025-08-08 15:35:36,086 [tuna.py] => Learning on 70-75
+2025-08-08 15:37:59,572 [tuna.py] => Task 14, Epoch 15/15 => Loss 0.074, Train_accy 68.60
+2025-08-08 15:38:26,718 [tuna.py] => Task 14, Epoch 30/30 => Loss 0.044, CA_accy 99.55
+2025-08-08 15:41:05,038 [trainer.py] => No NME accuracy.
+2025-08-08 15:41:05,038 [trainer.py] => CNN: {'total': 93.12, '00-04': 94.2, '05-09': 92.8, '10-14': 91.8, '15-19': 94.0, '20-24': 97.6, '25-29': 92.8, '30-34': 92.8, '35-39': 94.0, '40-44': 94.0, '45-49': 92.0, '50-54': 92.8, '55-59': 89.8, '60-64': 91.0, '65-69': 96.2, '70-74': 91.0, 'old': 93.27, 'new': 91.0}
+2025-08-08 15:41:05,038 [trainer.py] => CNN top1 curve: [99.8, 98.7, 98.07, 97.25, 97.44, 96.4, 95.8, 95.65, 95.24, 94.64, 93.95, 94.12, 93.74, 93.71, 93.12]
+2025-08-08 15:41:05,038 [trainer.py] => CNN top5 curve: [100.0, 99.9, 99.8, 99.75, 99.68, 99.63, 99.51, 99.52, 99.47, 99.42, 99.55, 99.37, 99.4, 99.44, 99.4]
+
+2025-08-08 15:41:05,039 [trainer.py] => Average Accuracy (CNN): 95.84200000000001 
+
+2025-08-08 15:41:05,043 [trainer.py] => All params: 91106596
+2025-08-08 15:41:05,046 [trainer.py] => Trainable params: 5307940
+2025-08-08 15:41:05,049 [tuna.py] => Learning on 75-80
+2025-08-08 15:43:29,777 [tuna.py] => Task 15, Epoch 15/15 => Loss 0.069, Train_accy 66.52
+2025-08-08 15:43:57,035 [tuna.py] => Task 15, Epoch 30/30 => Loss 0.049, CA_accy 99.44
+2025-08-08 15:46:56,115 [trainer.py] => No NME accuracy.
+2025-08-08 15:46:56,116 [trainer.py] => CNN: {'total': 92.28, '00-04': 93.6, '05-09': 93.0, '10-14': 91.4, '15-19': 94.0, '20-24': 97.4, '25-29': 92.2, '30-34': 93.4, '35-39': 93.4, '40-44': 93.6, '45-49': 89.0, '50-54': 90.0, '55-59': 90.8, '60-64': 90.6, '65-69': 96.2, '70-74': 89.6, '75-79': 88.2, 'old': 92.55, 'new': 88.2}
+2025-08-08 15:46:56,116 [trainer.py] => CNN top1 curve: [99.8, 98.7, 98.07, 97.25, 97.44, 96.4, 95.8, 95.65, 95.24, 94.64, 93.95, 94.12, 93.74, 93.71, 93.12, 92.28]
+2025-08-08 15:46:56,116 [trainer.py] => CNN top5 curve: [100.0, 99.9, 99.8, 99.75, 99.68, 99.63, 99.51, 99.52, 99.47, 99.42, 99.55, 99.37, 99.4, 99.44, 99.4, 99.4]
+
+2025-08-08 15:46:56,116 [trainer.py] => Average Accuracy (CNN): 95.619375 
+
+2025-08-08 15:46:56,119 [trainer.py] => All params: 91414756
+2025-08-08 15:46:56,121 [trainer.py] => Trainable params: 5616100
+2025-08-08 15:46:56,122 [tuna.py] => Learning on 80-85
+2025-08-08 15:49:16,406 [tuna.py] => Task 16, Epoch 15/15 => Loss 0.052, Train_accy 77.76
+2025-08-08 15:49:46,953 [tuna.py] => Task 16, Epoch 30/30 => Loss 0.049, CA_accy 99.53
+2025-08-08 15:53:08,371 [trainer.py] => No NME accuracy.
+2025-08-08 15:53:08,371 [trainer.py] => CNN: {'total': 92.09, '00-04': 94.0, '05-09': 92.6, '10-14': 91.0, '15-19': 94.0, '20-24': 97.2, '25-29': 92.2, '30-34': 92.8, '35-39': 93.8, '40-44': 94.0, '45-49': 87.2, '50-54': 89.4, '55-59': 90.6, '60-64': 88.8, '65-69': 96.4, '70-74': 90.6, '75-79': 88.4, '80-84': 92.6, 'old': 92.06, 'new': 92.6}
+2025-08-08 15:53:08,371 [trainer.py] => CNN top1 curve: [99.8, 98.7, 98.07, 97.25, 97.44, 96.4, 95.8, 95.65, 95.24, 94.64, 93.95, 94.12, 93.74, 93.71, 93.12, 92.28, 92.09]
+2025-08-08 15:53:08,372 [trainer.py] => CNN top5 curve: [100.0, 99.9, 99.8, 99.75, 99.68, 99.63, 99.51, 99.52, 99.47, 99.42, 99.55, 99.37, 99.4, 99.44, 99.4, 99.4, 99.31]
+
+2025-08-08 15:53:08,372 [trainer.py] => Average Accuracy (CNN): 95.41176470588235 
+
+2025-08-08 15:53:08,375 [trainer.py] => All params: 91722916
+2025-08-08 15:53:08,377 [trainer.py] => Trainable params: 5924260
+2025-08-08 15:53:08,386 [tuna.py] => Learning on 85-90
+2025-08-08 15:55:30,580 [tuna.py] => Task 17, Epoch 15/15 => Loss 0.151, Train_accy 72.68
+2025-08-08 15:56:03,263 [tuna.py] => Task 17, Epoch 30/30 => Loss 0.046, CA_accy 99.68
+2025-08-08 15:59:48,608 [trainer.py] => No NME accuracy.
+2025-08-08 15:59:48,608 [trainer.py] => CNN: {'total': 91.67, '00-04': 93.6, '05-09': 92.4, '10-14': 89.6, '15-19': 93.2, '20-24': 97.0, '25-29': 91.8, '30-34': 92.6, '35-39': 93.8, '40-44': 94.0, '45-49': 85.6, '50-54': 89.8, '55-59': 90.8, '60-64': 88.6, '65-69': 95.8, '70-74': 91.0, '75-79': 88.4, '80-84': 92.2, '85-89': 89.8, 'old': 91.78, 'new': 89.8}
+2025-08-08 15:59:48,608 [trainer.py] => CNN top1 curve: [99.8, 98.7, 98.07, 97.25, 97.44, 96.4, 95.8, 95.65, 95.24, 94.64, 93.95, 94.12, 93.74, 93.71, 93.12, 92.28, 92.09, 91.67]
+2025-08-08 15:59:48,608 [trainer.py] => CNN top5 curve: [100.0, 99.9, 99.8, 99.75, 99.68, 99.63, 99.51, 99.52, 99.47, 99.42, 99.55, 99.37, 99.4, 99.44, 99.4, 99.4, 99.31, 99.2]
+
+2025-08-08 15:59:48,608 [trainer.py] => Average Accuracy (CNN): 95.2038888888889 
+
+2025-08-08 15:59:48,611 [trainer.py] => All params: 92031076
+2025-08-08 15:59:48,614 [trainer.py] => Trainable params: 6232420
+2025-08-08 15:59:48,615 [tuna.py] => Learning on 90-95
+2025-08-08 16:02:15,225 [tuna.py] => Task 18, Epoch 15/15 => Loss 0.065, Train_accy 84.08
+2025-08-08 16:02:51,216 [tuna.py] => Task 18, Epoch 30/30 => Loss 0.042, CA_accy 99.84
+2025-08-08 16:07:02,410 [trainer.py] => No NME accuracy.
+2025-08-08 16:07:02,410 [trainer.py] => CNN: {'total': 91.84, '00-04': 93.2, '05-09': 91.6, '10-14': 88.4, '15-19': 93.2, '20-24': 96.8, '25-29': 91.8, '30-34': 93.4, '35-39': 93.8, '40-44': 93.8, '45-49': 87.2, '50-54': 89.2, '55-59': 90.0, '60-64': 88.6, '65-69': 95.6, '70-74': 91.2, '75-79': 87.6, '80-84': 92.6, '85-89': 91.8, '90-94': 95.2, 'old': 91.66, 'new': 95.2}
+2025-08-08 16:07:02,410 [trainer.py] => CNN top1 curve: [99.8, 98.7, 98.07, 97.25, 97.44, 96.4, 95.8, 95.65, 95.24, 94.64, 93.95, 94.12, 93.74, 93.71, 93.12, 92.28, 92.09, 91.67, 91.84]
+2025-08-08 16:07:02,410 [trainer.py] => CNN top5 curve: [100.0, 99.9, 99.8, 99.75, 99.68, 99.63, 99.51, 99.52, 99.47, 99.42, 99.55, 99.37, 99.4, 99.44, 99.4, 99.4, 99.31, 99.2, 99.09]
+
+2025-08-08 16:07:02,411 [trainer.py] => Average Accuracy (CNN): 95.02684210526316 
+
+2025-08-08 16:07:02,414 [trainer.py] => All params: 92339236
+2025-08-08 16:07:02,417 [trainer.py] => Trainable params: 6540580
+2025-08-08 16:07:02,424 [tuna.py] => Learning on 95-100
+2025-08-08 16:09:27,626 [tuna.py] => Task 19, Epoch 15/15 => Loss 0.108, Train_accy 71.52
+2025-08-08 16:10:06,413 [tuna.py] => Task 19, Epoch 30/30 => Loss 0.043, CA_accy 99.76
+2025-08-08 16:14:43,870 [trainer.py] => No NME accuracy.
+2025-08-08 16:14:43,870 [trainer.py] => CNN: {'total': 91.6, '00-04': 93.2, '05-09': 92.2, '10-14': 88.6, '15-19': 93.8, '20-24': 96.8, '25-29': 91.6, '30-34': 92.4, '35-39': 92.8, '40-44': 93.4, '45-49': 86.2, '50-54': 89.0, '55-59': 91.2, '60-64': 89.2, '65-69': 96.2, '70-74': 90.4, '75-79': 87.8, '80-84': 92.0, '85-89': 91.0, '90-94': 95.2, '95-99': 89.0, 'old': 91.74, 'new': 89.0}
+2025-08-08 16:14:43,870 [trainer.py] => CNN top1 curve: [99.8, 98.7, 98.07, 97.25, 97.44, 96.4, 95.8, 95.65, 95.24, 94.64, 93.95, 94.12, 93.74, 93.71, 93.12, 92.28, 92.09, 91.67, 91.84, 91.6]
+2025-08-08 16:14:43,870 [trainer.py] => CNN top5 curve: [100.0, 99.9, 99.8, 99.75, 99.68, 99.63, 99.51, 99.52, 99.47, 99.42, 99.55, 99.37, 99.4, 99.44, 99.4, 99.4, 99.31, 99.2, 99.09, 99.05]
+
+2025-08-08 16:14:43,871 [trainer.py] => Average Accuracy (CNN): 94.85549999999999 
+
+2025-08-08 16:14:43,873 [trainer.py] => Forgetting (CNN): 3.2526315789473697
