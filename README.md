@@ -1,10 +1,48 @@
 # Integrating Task-Specific and Universal Adapters for Pre-Trained Model-based Class-Incremental Learning
 
 <div align="center">
+  <div>
   <a href='https://www.lamda.nju.edu.cn/wangy/' target='_blank'>Yan Wang</a>&emsp;
     <a href='http://www.lamda.nju.edu.cn/zhoudw' target='_blank'>Da-Wei Zhou</a>&emsp;
     <a href='http://www.lamda.nju.edu.cn/yehj' target='_blank'>Han-Jia Ye</a>&emsp;
+    </div>
+<div>
+    State Key Laboratory for Novel Software Technology, Nanjing University
+    </div>
 </div>
+
+<div align="center">
+
+  <a href="https://arxiv.org/abs/2508.08165">
+    <img src="https://img.shields.io/badge/Paper-red" alt="arXiv">
+  </a>
+
+</div>
+
+The code repository for "[Integrating Task-Specific and Universal Adapters for Pre-Trained Model-based Class-Incremental Learning](https://arxiv.org/abs/2508.08165)" (ICCV 2025)  in PyTorch.  If you use any content of this repo for your work, please cite the following bib entry: 
+
+```bibtex
+@inproceedings{wang2025integrating,
+  title={Integrating Task-Specific and Universal Adapters for Pre-Trained Model-based Class-Incremental Learning},
+  author={Yan Wang and Da-Wei Zhou and Han-Jia Ye},
+  booktitle={ICCV},
+  year={2025}
+}
+```
+
+
+## 📢 **Updates**
+
+[08/2025] Code has been released.
+
+[08/2025] [arXiv](https://arxiv.org/abs/2508.08165) paper has been released.
+
+[06/2025] Accepted to [ICCV 2025](https://iccv.thecvf.com/).
+
+
+## 📝 Introduction
+
+Class-Incremental Learning (CIL) requires a learning system to continually learn new classes without forgetting. Existing pre-trained model-based CIL methods often freeze the pre-trained network and adapt to incremental tasks using additional lightweight modules such as adapters. However, incorrect module selection during inference hurts performance, and task-specific modules often overlook shared general knowledge, leading to errors on distinguishing between similar classes across tasks. To address the aforementioned challenges, we propose integrating Task-Specific and Universal Adapters (TUNA) in this paper. Specifically, we train task-specific adapters to capture the most crucial features relevant to their respective tasks and introduce an entropy-based selection mechanism to choose the most suitable adapter. Furthermore, we leverage an adapter fusion strategy to construct a universal adapter, which encodes the most discriminative features shared across tasks. We combine task-specific and universal adapter predictions to harness both specialized and general knowledge during inference. Extensive experiments on various benchmark datasets demonstrate the state-of-the-art performance of our approach.
 
 
 ## Requirements
