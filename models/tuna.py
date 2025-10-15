@@ -437,7 +437,7 @@ class Learner(BaseLearner):
 
             adapter_entropies = torch.stack(adapter_entropies)  # [num_adapters, bs]
             adapter_probs = torch.stack(adapter_probs)  # [num_adapters, bs, classes]
-            top_k = min(self.entropy_top_k, adapter_entropies.size(0))
+            top_k = min(3, adapter_entropies.size(0))
             topk_indices = torch.topk(adapter_entropies, k=top_k, dim=0, largest=False).indices
             expanded_indices = topk_indices.unsqueeze(-1).expand(-1, -1, adapter_probs.size(-1))
             selected_probs = torch.gather(adapter_probs, 0, expanded_indices)
