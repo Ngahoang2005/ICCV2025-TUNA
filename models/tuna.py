@@ -379,45 +379,72 @@ class Learner(BaseLearner):
             return y_pred, y_true
         self._network.eval()
         y_pred, y_true = [], []
-        y_pred_specific, y_pred_general = [], []
+        # y_pred_specific, y_pred_general = [], []
+        # for _, (_, inputs, targets) in enumerate(loader):
+        #     inputs = inputs.to(self._device)
+        #     targets = targets.to(self._device)
+        #     all_predicts = []
+        #     all_entropies = []
+        #     all_logits = []
+        #     for i in range(self._cur_task + 1):
+        #         with torch.no_grad():
+        #             features = self._network.backbone(inputs, adapter_id=i, train=False)["features"]
+        #             logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
+        #         probs = F.softmax(logits, dim=1)
+        #         entropy = -torch.sum(probs * torch.log(probs + 1e-10), dim=1)  # bs
+        #         predicts = torch.topk(
+        #             logits, k=self.topk, dim=1, largest=True, sorted=True
+        #         )[1]
+        #         all_predicts.append(predicts.cpu().numpy())
+        #         all_entropies.append(entropy.cpu().numpy())
+        #         all_logits.append(logits.cpu().numpy())
+        #     all_predicts = np.array(all_predicts)
+        #     all_entropies = torch.tensor(all_entropies)
+        #     all_logits = torch.tensor(all_logits)
+        #     min_entropy_indices = torch.argmin(all_entropies, axis=0)  # bs
+
+        #     min_entropy_logits = all_logits[min_entropy_indices, torch.arange(len(min_entropy_indices))].to(
+        #         self._device)
+        #     with torch.no_grad():
+        #         features = self._network.backbone(inputs, adapter_id=self._cur_task + 1, train=False)["features"]
+        #         logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
+        #         logits = F.softmax(logits, dim=1)
+        #     min_entropy_logits = F.softmax(min_entropy_logits, dim=1)
+
+        #     outputs = logits + min_entropy_logits
+        #     predicts = torch.topk(outputs, k=self.topk, dim=1, largest=True, sorted=True)[1]
+        #     pred_specific = torch.max(min_entropy_logits,dim=1)[1]
+        #     pred_general = torch.max(logits, dim=1)[1]
+        #     y_pred.append(predicts.cpu().numpy())
+        #     y_true.append(targets.cpu().numpy())
+        #     y_pred_specific.append(pred_specific.cpu().numpy())
+        #     y_pred_general.append(pred_general.cpu().numpy())
+       
+        # return np.concatenate(y_pred), np.concatenate(y_true)
         for _, (_, inputs, targets) in enumerate(loader):
             inputs = inputs.to(self._device)
             targets = targets.to(self._device)
-            all_predicts = []
-            all_entropies = []
-            all_logits = []
+            adapter_entropies = []
+            adapter_probs = []
             for i in range(self._cur_task + 1):
                 with torch.no_grad():
                     features = self._network.backbone(inputs, adapter_id=i, train=False)["features"]
-                    logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
+                    logits = self._network.fc(features)["logits"][:, :self._total_classes] * self.args['scale']
                 probs = F.softmax(logits, dim=1)
-                entropy = -torch.sum(probs * torch.log(probs + 1e-10), dim=1)  # bs
-                predicts = torch.topk(
-                    logits, k=self.topk, dim=1, largest=True, sorted=True
-                )[1]
-                all_predicts.append(predicts.cpu().numpy())
-                all_entropies.append(entropy.cpu().numpy())
-                all_logits.append(logits.cpu().numpy())
-            all_predicts = np.array(all_predicts)
-            all_entropies = torch.tensor(all_entropies)
-            all_logits = torch.tensor(all_logits)
-            min_entropy_indices = torch.argmin(all_entropies, axis=0)  # bs
+                entropy = -torch.sum(probs * torch.log(probs + 1e-10), dim=1)
+                adapter_entropies.append(entropy)
+                adapter_probs.append(probs)
 
-            min_entropy_logits = all_logits[min_entropy_indices, torch.arange(len(min_entropy_indices))].to(
-                self._device)
-            with torch.no_grad():
-                features = self._network.backbone(inputs, adapter_id=self._cur_task + 1, train=False)["features"]
-                logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
-                logits = F.softmax(logits, dim=1)
-            min_entropy_logits = F.softmax(min_entropy_logits, dim=1)
+            adapter_entropies = torch.stack(adapter_entropies)  # [num_adapters, bs]
+            adapter_probs = torch.stack(adapter_probs)  # [num_adapters, bs, classes]
+            top_k = min(self.entropy_top_k, adapter_entropies.size(0))
+            topk_indices = torch.topk(adapter_entropies, k=top_k, dim=0, largest=False).indices
+            expanded_indices = topk_indices.unsqueeze(-1).expand(-1, -1, adapter_probs.size(-1))
+            selected_probs = torch.gather(adapter_probs, 0, expanded_indices)
+            ensemble_probs = torch.mean(selected_probs, dim=0)
 
-            outputs = logits + min_entropy_logits
-            predicts = torch.topk(outputs, k=self.topk, dim=1, largest=True, sorted=True)[1]
-            pred_specific = torch.max(min_entropy_logits,dim=1)[1]
-            pred_general = torch.max(logits, dim=1)[1]
+            predicts = torch.topk(ensemble_probs, k=self.topk, dim=1, largest=True, sorted=True)[1]
             y_pred.append(predicts.cpu().numpy())
             y_true.append(targets.cpu().numpy())
-            y_pred_specific.append(pred_specific.cpu().numpy())
-            y_pred_general.append(pred_general.cpu().numpy())
-       
+
         return np.concatenate(y_pred), np.concatenate(y_true)
