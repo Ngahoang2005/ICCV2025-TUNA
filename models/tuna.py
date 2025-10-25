@@ -409,15 +409,15 @@ class Learner(BaseLearner):
                 # Compute Mahalanobis distance
                 distances = self._compute_mahalanobis_distance(features, i)
                 
-                all_predicts.append(predicts.cpu().numpy())
-                all_entropies.append(entropy.cpu().numpy())
-                all_logits.append(logits.cpu().numpy())
-                all_distances.append(distances.cpu().numpy())
+                
+                all_entropies.append(entropy.detach())
+                all_logits.append(logits.detach())
+                all_distances.append(distances.detach())
     
-            all_predicts = np.array(all_predicts)
-            all_entropies = torch.tensor(all_entropies)
-            all_logits = torch.tensor(all_logits)
-            all_distances = torch.tensor(all_distances)
+    
+            all_entropies = torch.stack(all_entropies).to(self._device)
+            all_logits = torch.stack(all_logits).to(self._device)
+            all_distances = torch.stack(all_distances).to(self._device)
 
 
             entropy_min, entropy_max = all_entropies.min(dim=0).values, all_entropies.max(dim=0).values
