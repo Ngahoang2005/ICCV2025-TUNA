@@ -386,90 +386,107 @@ class Learner(BaseLearner):
         self._network.eval()
         y_pred, y_true = [], []
         y_pred_specific, y_pred_general = [], []
-    #     for _, (_, inputs, targets) in enumerate(loader):
-    #         inputs = inputs.to(self._device)
-    #         targets = targets.to(self._device)
-    #         all_predicts = []
-    #         all_entropies = []
-    #         all_logits = []
-    #         for i in range(self._cur_task + 1):
-    #             with torch.no_grad():
-    #                 features = self._network.backbone(inputs, adapter_id=i, train=False)["features"]
-    #                 logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
-    #             probs = F.softmax(logits, dim=1)
-    #             entropy = -torch.sum(probs * torch.log(probs + 1e-10), dim=1)  # bs
-    #             predicts = torch.topk(
-    #                 logits, k=self.topk, dim=1, largest=True, sorted=True
-    #             )[1]
-    #             all_predicts.append(predicts.cpu().numpy())
-    #             all_entropies.append(entropy.cpu().numpy())
-    #             all_logits.append(logits.cpu().numpy())
-    #         all_predicts = np.array(all_predicts)
-    #         all_entropies = torch.tensor(all_entropies)
-    #         all_logits = torch.tensor(all_logits)
-    #         min_entropy_indices = torch.argmin(all_entropies, axis=0)  # bs
-
-    #         min_entropy_logits = all_logits[min_entropy_indices, torch.arange(len(min_entropy_indices))].to(
-    #             self._device)
-    #         with torch.no_grad():
-    #             features = self._network.backbone(inputs, adapter_id=self._cur_task + 1, train=False)["features"]
-    #             logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
-    #             logits = F.softmax(logits, dim=1)
-    #         min_entropy_logits = F.softmax(min_entropy_logits, dim=1)
-
-    #         outputs = logits + min_entropy_logits
-    #         predicts = torch.topk(outputs, k=self.topk, dim=1, largest=True, sorted=True)[1]
-    #         pred_specific = torch.max(min_entropy_logits,dim=1)[1]
-    #         pred_general = torch.max(logits, dim=1)[1]
-    #         y_pred.append(predicts.cpu().numpy())
-    #         y_true.append(targets.cpu().numpy())
-    #         y_pred_specific.append(pred_specific.cpu().numpy())
-    #         y_pred_general.append(pred_general.cpu().numpy())
-       
-    #     return np.concatenate(y_pred), np.concatenate(y_true)
         for _, (_, inputs, targets) in enumerate(loader):
             inputs = inputs.to(self._device)
             targets = targets.to(self._device)
-            adapter_entropies = []
-            adapter_probs = []
-            adapter_distances = []
-            for i in range(self._cur_task + 1): #cho chạy qua từng adapter để tính đặc trưng và xác suất, tính entropy và khoảng cách mahalanobis giữa đặc trưng của input task hiện tại với các lớp đã học
 
+            all_predicts = []
+            all_entropies = []
+            all_logits = []
+            all_distances = [] # lưu trữ khoảng cách mahalanobis của từng adapter đối với batch hiện tại
+
+            for i in range(self._cur_task + 1):
                 with torch.no_grad():
                     features = self._network.backbone(inputs, adapter_id=i, train=False)["features"]
-                    logits = self._network.fc(features)["logits"][:, :self._total_classes] * self.args['scale']
-                probs = F.softmax(logits, dim=1)
-                entropy = -torch.sum(probs * torch.log(probs + 1e-10), dim=1)
+                    logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
+
+                probs = F.softmax(logits, dim=1) # là xác suất của từng adapter đối với batch hiện tại, bao gồm các xác suất thuộc về tất cả các lớp đã học
+                entropy = -torch.sum(probs * torch.log(probs + 1e-10), dim=1)  # entropy của từng adapter đối với batch hiện tại
+                predicts = torch.topk(
+                    logits, k=self.topk, dim=1, largest=True, sorted=True
+                )[1] # là dự đoán của từng adapter đối với batch hiện tại
+                # Compute Mahalanobis distance
                 distances = self._compute_mahalanobis_distance(features, i)
+                
+                all_predicts.append(predicts.cpu().numpy())
+                all_entropies.append(entropy.cpu().numpy())
+                all_logits.append(logits.cpu().numpy())
+                all_distances.append(distances.cpu().numpy())
+    
+            all_predicts = np.array(all_predicts)
+            all_entropies = torch.tensor(all_entropies)
+            all_logits = torch.tensor(all_logits)
+            all_distances = torch.tensor(all_distances)
 
-                adapter_entropies.append(entropy) # cất trữ entropy của từng adapter đối với batch hiện tại
-                adapter_probs.append(probs) # cất trữ xác suất của từng adapter đối với batch hiện tại
-                adapter_distances.append(distances) # cất trữ khoảng cách mahalanobis của từng adapter đối với batch hiện tại
-            adapter_entropies = torch.stack(adapter_entropies)  # stack lại để được tensor [num_adapters, bs], trong đó bs là kích thước batch, num_adapters là số adapter đã học
-            adapter_distances = torch.stack(adapter_distances)  # 
-            adapter_probs = torch.stack(adapter_probs)  # [num_adapters, bs, classes]
-            for idx, d in enumerate(adapter_distances):
-                if d is None:
-                    print(f"⚠️ Adapter {idx} trả về None từ _compute_mahalanobis_distance")
+            entropy_min, entropy_max = all_entropies.min(dim=0).values, all_entropies.max(dim=0).values
+            entropy_norm = (all_entropies - entropy_min) / (entropy_max - entropy_min + 1e-12)
 
-            distance_min, distance_max = adapter_distances.min(dim =0).values, adapter_distances.max(dim = 0).values
-            entropy_min, entropy_max = adapter_entropies.min(dim=0).values, adapter_entropies.max(dim=0).values
-            distance_range = (distance_max - distance_min).clamp_min(1e-12)
-            entropy_range = (entropy_max - entropy_min).clamp_min(1e-12)
-            norm_distances = (adapter_distances - distance_min.unsqueeze(0)) / distance_range.unsqueeze(0)
-            norm_entropy = (adapter_entropies - entropy_min.unsqueeze(0)) / entropy_range.unsqueeze(0)
-            combined_score = self.mahal_entropy_alpha * norm_distances + (1 - self.mahal_entropy_alpha) * norm_entropy
-            top_k = min(1, combined_score.size(0))
-            topk_indices = torch.topk(combined_score, k=top_k, dim=0, largest=False).indices
-            expanded_indices = topk_indices.unsqueeze(-1).expand(-1, -1, adapter_probs.size(-1))
-            selected_probs = torch.gather(adapter_probs, 0, expanded_indices)
-            ensemble_probs = torch.mean(selected_probs, dim=0)
+            dist_min, dist_max = all_distances.min(dim=0).values, all_distances.max(dim=0).values
+            dist_norm = (all_distances - dist_min) / (dist_max - dist_min + 1e-12)
 
-            predicts = torch.topk(ensemble_probs, k=self.topk, dim=1, largest=True, sorted=True)[1]
+            combined_score = entropy_norm + dist_norm
+            best_adapter_idx = torch.argmin(combined_score, dim=0)  # chọn adapter có tổng nhỏ nhất
+            best_logits = all_logits[best_adapter_idx, torch.arange(inputs.size(0))]
+
+            with torch.no_grad():
+                features = self._network.backbone(inputs, adapter_id=self._cur_task + 1, train=False)["features"]
+                logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
+                logits = F.softmax(logits, dim=1) # là logit của adapter tổng quát đối với batch hiện tại
+            best_probs = F.softmax(best_logits, dim=1)
+            probs = F.softmax(logits, dim=1)
+            outputs = probs + best_probs  # kết hợp xác suất của adapter tổng quát và adapter cụ thể
+            predicts = torch.topk(outputs, k=self.topk, dim=1, largest=True, sorted=True)[1]
+            pred_specific = torch.max(best_probs,dim=1)[1]
+            pred_general = torch.max(probs, dim=1)[1]
             y_pred.append(predicts.cpu().numpy())
             y_true.append(targets.cpu().numpy())
-
+            y_pred_specific.append(pred_specific.cpu().numpy())
+            y_pred_general.append(pred_general.cpu().numpy())
+       
         return np.concatenate(y_pred), np.concatenate(y_true)
+        # for _, (_, inputs, targets) in enumerate(loader):
+        #     inputs = inputs.to(self._device)
+        #     targets = targets.to(self._device)
+        #     adapter_entropies = []
+        #     adapter_probs = []
+        #     adapter_distances = []
+        #     all_predicts = []
+        #     all_entropies = []
+        #     all_logits = []
+        #     for i in range(self._cur_task + 1): #cho chạy qua từng adapter để tính đặc trưng và xác suất, tính entropy và khoảng cách mahalanobis giữa đặc trưng của input task hiện tại với các lớp đã học
+
+        #         with torch.no_grad():
+        #             features = self._network.backbone(inputs, adapter_id=i, train=False)["features"]
+        #             logits = self._network.fc(features)["logits"][:, :self._total_classes] * self.args['scale']
+        #         probs = F.softmax(logits, dim=1)
+        #         entropy = -torch.sum(probs * torch.log(probs + 1e-10), dim=1)
+        #         distances = self._compute_mahalanobis_distance(features, i)
+
+        #         adapter_entropies.append(entropy) # cất trữ entropy của từng adapter đối với batch hiện tại
+        #         adapter_probs.append(probs) # cất trữ xác suất của từng adapter đối với batch hiện tại
+        #         adapter_distances.append(distances) # cất trữ khoảng cách mahalanobis của từng adapter đối với batch hiện tại
+        #     adapter_entropies = torch.stack(adapter_entropies)  # stack lại để được tensor [num_adapters, bs], trong đó bs là kích thước batch, num_adapters là số adapter đã học
+        #     adapter_distances = torch.stack(adapter_distances)  # 
+        #     adapter_probs = torch.stack(adapter_probs)  # [num_adapters, bs, classes]
+            
+        #     distance_min, distance_max = adapter_distances.min(dim =0).values, adapter_distances.max(dim = 0).values
+        #     entropy_min, entropy_max = adapter_entropies.min(dim=0).values, adapter_entropies.max(dim=0).values
+        #     distance_range = (distance_max - distance_min).clamp_min(1e-12)
+        #     entropy_range = (entropy_max - entropy_min).clamp_min(1e-12)
+        #     norm_distances = (adapter_distances - distance_min.unsqueeze(0)) / distance_range.unsqueeze(0)
+        #     norm_entropy = (adapter_entropies - entropy_min.unsqueeze(0)) / entropy_range.unsqueeze(0)
+        #     combined_score = self.mahal_entropy_alpha * norm_distances + (1 - self.mahal_entropy_alpha) * norm_entropy 
+        #     top_k = min(1, combined_score.size(0))
+        #     topk_indices = torch.topk(combined_score, k=top_k, dim=0, largest=False).indices
+        #     expanded_indices = topk_indices.unsqueeze(-1).expand(-1, -1, adapter_probs.size(-1))
+        #     selected_probs = torch.gather(adapter_probs, 0, expanded_indices)
+        #     ensemble_probs = torch.mean(selected_probs, dim=0)
+
+        #     predicts = torch.topk(ensemble_probs, k=self.topk, dim=1, largest=True, sorted=True)[1]
+        #     y_pred.append(predicts.cpu().numpy())
+        #     y_true.append(targets.cpu().numpy())
+
+        # return np.concatenate(y_pred), np.concatenate(y_true)
     def _compute_mahalanobis_distance(self, features, adapter_id):
         class_indices = [cls for cls, task in self.cls2task.items() if task == adapter_id]
         if len(class_indices) == 0:
