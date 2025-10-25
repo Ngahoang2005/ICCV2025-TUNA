@@ -415,9 +415,9 @@ class Learner(BaseLearner):
                 all_distances.append(distances.cpu().numpy())
     
             all_predicts = np.array(all_predicts)
-            all_entropies = torch.stack(all_entropies).to(self._device)
-            all_logits = torch.stack(all_logits).to(self._device)
-            all_distances = torch.stack(all_distances).to(self._device)
+            all_entropies = torch.tensor(all_entropies)
+            all_logits = torch.tensor(all_logits)
+            all_distances = torch.tensor(all_distances)
 
 
             entropy_min, entropy_max = all_entropies.min(dim=0).values, all_entropies.max(dim=0).values
@@ -434,8 +434,6 @@ class Learner(BaseLearner):
                 features = self._network.backbone(inputs, adapter_id=self._cur_task + 1, train=False)["features"]
                 logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
                 logits = F.softmax(logits, dim=1) # là logit của adapter tổng quát đối với batch hiện tại
-            best_logits = best_logits.to(self._device)
-            logits = logits.to(self._device)
 
             best_probs = F.softmax(best_logits, dim=1)
             probs = F.softmax(logits, dim=1)
