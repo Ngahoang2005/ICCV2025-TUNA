@@ -430,14 +430,14 @@ class Learner(BaseLearner):
             best_adapter_idx = torch.argmin(combined_score, axis=0)  # chọn adapter có tổng nhỏ nhất
             best_logits = all_logits[best_adapter_idx, torch.arange(len(best_adapter_idx))].to(self._device)  # lấy logits tương ứng với adapter tốt nhất
 
-            with torch.no_grad():
-                features = self._network.backbone(inputs, adapter_id=self._cur_task + 1, train=False)["features"]
-                logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
-                logits = F.softmax(logits, dim=1) # là logit của adapter tổng quát đối với batch hiện tại
+            # with torch.no_grad():
+            #     features = self._network.backbone(inputs, adapter_id=self._cur_task + 1, train=False)["features"]
+            #     logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
+            #     logits = F.softmax(logits, dim=1) # là logit của adapter tổng quát đối với batch hiện tại
 
             min_entropy_logits = F.softmax(best_logits, dim=1)
             
-            outputs = logits + min_entropy_logits
+            outputs = min_entropy_logits
             predicts = torch.topk(outputs, k=self.topk, dim=1, largest=True, sorted=True)[1]
             pred_specific = torch.max(min_entropy_logits,dim=1)[1]
             pred_general = torch.max(logits, dim=1)[1]
