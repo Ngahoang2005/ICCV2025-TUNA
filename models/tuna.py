@@ -433,7 +433,7 @@ class Learner(BaseLearner):
             adapter_entropies = []
             adapter_probs = []
             adapter_distances = []
-            for i in range(self._cur_task + 1):
+            for i in range(self._cur_task + 1): #cho chạy qua từng adapter để tính đặc trưng và xác suất, tính entropy và khoảng cách mahalanobis giữa đặc trưng của input task hiện tại với các lớp đã học
                 with torch.no_grad():
                     features = self._network.backbone(inputs, adapter_id=i, train=False)["features"]
                     logits = self._network.fc(features)["logits"][:, :self._total_classes] * self.args['scale']
@@ -441,9 +441,9 @@ class Learner(BaseLearner):
                 entropy = -torch.sum(probs * torch.log(probs + 1e-10), dim=1)
                 distances = self._compute_mahalanobis_distance(features, i)
 
-                adapter_entropies.append(entropy)
-                adapter_probs.append(probs)
-                adapter_distances.append(distances)
+                adapter_entropies.append(entropy) # cất trữ entropy của từng adapter đối với batch hiện tại
+                adapter_probs.append(probs) # cất trữ xác suất của từng adapter đối với batch hiện tại
+                adapter_distances.append(distances) # cất trữ khoảng cách mahalanobis của từng adapter đối với batch hiện tại
             adapter_entropies = torch.stack(adapter_entropies)  # [num_adapters, bs]
             adapter_distances = torch.stack(adapter_distances)  # [num_adapters, bs]
             adapter_probs = torch.stack(adapter_probs)  # [num_adapters, bs, classes]
