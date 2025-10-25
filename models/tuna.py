@@ -386,6 +386,7 @@ class Learner(BaseLearner):
         self._network.eval()
         y_pred, y_true = [], []
         y_pred_specific, y_pred_general = [], []
+
         for _, (_, inputs, targets) in enumerate(loader):
             inputs = inputs.to(self._device)
             targets = targets.to(self._device)
@@ -414,9 +415,10 @@ class Learner(BaseLearner):
                 all_distances.append(distances.cpu().numpy())
     
             all_predicts = np.array(all_predicts)
-            all_entropies = torch.tensor(all_entropies)
-            all_logits = torch.tensor(all_logits)
-            all_distances = torch.tensor(all_distances)
+            all_entropies = torch.stack(all_entropies).to(self._device)
+            all_logits = torch.stack(all_logits).to(self._device)
+            all_distances = torch.stack(all_distances).to(self._device)
+
 
             entropy_min, entropy_max = all_entropies.min(dim=0).values, all_entropies.max(dim=0).values
             entropy_norm = (all_entropies - entropy_min) / (entropy_max - entropy_min + 1e-12)
@@ -432,9 +434,12 @@ class Learner(BaseLearner):
                 features = self._network.backbone(inputs, adapter_id=self._cur_task + 1, train=False)["features"]
                 logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
                 logits = F.softmax(logits, dim=1) # là logit của adapter tổng quát đối với batch hiện tại
+            best_logits = best_logits.to(self._device)
+            logits = logits.to(self._device)
+
             best_probs = F.softmax(best_logits, dim=1)
             probs = F.softmax(logits, dim=1)
-            outputs = probs + best_probs  # kết hợp xác suất của adapter tổng quát và adapter cụ thể
+            outputs = probs + best_probs  # kết hợp xác suất của adapter tổng quát và adapter chuyên biệt
             predicts = torch.topk(outputs, k=self.topk, dim=1, largest=True, sorted=True)[1]
             pred_specific = torch.max(best_probs,dim=1)[1]
             pred_general = torch.max(probs, dim=1)[1]
