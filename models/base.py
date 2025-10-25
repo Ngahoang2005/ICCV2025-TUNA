@@ -402,3 +402,5 @@ class BaseLearner(object):
             _class_means[class_idx, :] = mean
 
         self._class_means = _class_means
+    def _compute_mahalanobis_distance(self, features, class_idx):
+        pass
