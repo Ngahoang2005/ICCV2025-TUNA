@@ -470,7 +470,7 @@ class Learner(BaseLearner):
             y_true.append(targets.cpu().numpy())
 
         return np.concatenate(y_pred), np.concatenate(y_true)
-    def _compute_mahalanobis(self, features, adapter_id):
+    def _compute_mahalanobis_distance(self, features, adapter_id):
         class_indices = [cls for cls, task in self.cls2task.items() if task == adapter_id]
         if len(class_indices) == 0:
             return torch.full((features.size(0),), float('inf'), device=features.device)
