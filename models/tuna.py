@@ -428,19 +428,19 @@ class Learner(BaseLearner):
 
             combined_score = entropy_norm + dist_norm
             best_adapter_idx = torch.argmin(combined_score, dim=0)  # chọn adapter có tổng nhỏ nhất
-            best_logits = all_logits[best_adapter_idx, torch.arange(inputs.size(0))]
+            best_logits = all_logits[best_adapter_idx, torch.arange(len(best_adapter_idx))]
 
             with torch.no_grad():
                 features = self._network.backbone(inputs, adapter_id=self._cur_task + 1, train=False)["features"]
                 logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
                 logits = F.softmax(logits, dim=1) # là logit của adapter tổng quát đối với batch hiện tại
 
-            best_probs = F.softmax(best_logits, dim=1)
-            probs = F.softmax(logits, dim=1)
-            outputs = probs + best_probs  # kết hợp xác suất của adapter tổng quát và adapter chuyên biệt
+            min_entropy_logits = F.softmax(best_logits, dim=1)
+            
+            outputs = logits + min_entropy_logits
             predicts = torch.topk(outputs, k=self.topk, dim=1, largest=True, sorted=True)[1]
-            pred_specific = torch.max(best_probs,dim=1)[1]
-            pred_general = torch.max(probs, dim=1)[1]
+            pred_specific = torch.max(min_entropy_logits,dim=1)[1]
+            pred_general = torch.max(logits, dim=1)[1]
             y_pred.append(predicts.cpu().numpy())
             y_true.append(targets.cpu().numpy())
             y_pred_specific.append(pred_specific.cpu().numpy())
