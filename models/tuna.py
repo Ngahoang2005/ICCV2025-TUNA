@@ -427,8 +427,8 @@ class Learner(BaseLearner):
             dist_norm = (all_distances - dist_min) / (dist_max - dist_min + 1e-12)
 
             combined_score = entropy_norm + dist_norm
-            best_adapter_idx = torch.argmin(combined_score, dim=0)  # chọn adapter có tổng nhỏ nhất
-            best_logits = all_logits[best_adapter_idx, torch.arange(len(best_adapter_idx))]
+            best_adapter_idx = torch.argmin(combined_score, axis=0)  # chọn adapter có tổng nhỏ nhất
+            best_logits = all_logits[best_adapter_idx, torch.arange(len(best_adapter_idx))].to(self._device)  # lấy logits tương ứng với adapter tốt nhất
 
             with torch.no_grad():
                 features = self._network.backbone(inputs, adapter_id=self._cur_task + 1, train=False)["features"]
