@@ -386,12 +386,14 @@ class Learner(BaseLearner):
         self._network.eval()
         y_pred, y_true = [], []
         y_pred_specific, y_pred_general = [], []
+        tau = 1
+        lamda = 0.5
 
         for _, (_, inputs, targets) in enumerate(loader):
             inputs = inputs.to(self._device)
             targets = targets.to(self._device)
 
-            all_predicts = []
+            all_predicts = [] # lưu trữ dự đoán của từng adapter đối với batch hiện tại
             all_entropies = []
             all_logits = []
             all_distances = [] # lưu trữ khoảng cách mahalanobis của từng adapter đối với batch hiện tại
@@ -402,42 +404,51 @@ class Learner(BaseLearner):
                     logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
 
                 probs = F.softmax(logits, dim=1) # là xác suất của từng adapter đối với batch hiện tại, bao gồm các xác suất thuộc về tất cả các lớp đã học
-                # entropy = -torch.sum(probs * torch.log(probs + 1e-10), dim=1)  # entropy của từng adapter đối với batch hiện tại
+                entropy = -torch.sum(probs * torch.log(probs + 1e-10), dim=1)  # entropy của từng adapter đối với batch hiện tại
                 predicts = torch.topk(
                     logits, k=self.topk, dim=1, largest=True, sorted=True
-                )[1] # là dự đoán của từng adapter đối với batch hiện tại
-                # Compute Mahalanobis distance
+                )[1] 
                 distances = self._compute_mahalanobis_distance(features, i)
                 
-                
-                # all_entropies.append(entropy.detach())
+                all_predicts.append(predicts.detach())
+                all_entropies.append(entropy.detach())
                 all_logits.append(logits.detach())
                 all_distances.append(distances.detach())
     
-    
-            # all_entropies = torch.stack(all_entropies).to(self._device)
+            all_predicts = torch.stack(all_predicts).to(self._device)  # shape: (num_adapters, batch_size, topk)
+            all_entropies = torch.stack(all_entropies).to(self._device)
             all_logits = torch.stack(all_logits).to(self._device)
             all_distances = torch.stack(all_distances).to(self._device)
+            min_entropy_indices = torch.argmin(all_entropies, axis=0)  # bs
 
+            min_entropy_logits = all_logits[min_entropy_indices, torch.arange(len(min_entropy_indices))].to(
+                self._device)
 
             # entropy_min, entropy_max = all_entropies.min(dim=0).values, all_entropies.max(dim=0).values
             # entropy_norm = (all_entropies - entropy_min) / (entropy_max - entropy_min + 1e-12)
 
-            dist_min, dist_max = all_distances.min(dim=0).values, all_distances.max(dim=0).values
-            dist_norm = (all_distances - dist_min) / (dist_max - dist_min + 1e-12)
+            # dist_min, dist_max = all_distances.min(dim=0).values, all_distances.max(dim=0).values
+            # dist_norm = (all_distances - dist_min) / (dist_max - dist_min + 1e-12)
 
-            combined_score = dist_norm
-            best_adapter_idx = torch.argmin(combined_score, axis=0)  # chọn adapter có tổng nhỏ nhất
-            best_logits = all_logits[best_adapter_idx, torch.arange(len(best_adapter_idx))].to(self._device)  # lấy logits tương ứng với adapter tốt nhất
-
+            # #combined_score = entropy_norm + dist_norm
+            # combined_score =  entropy_norm
+            
+            # best_adapter_idx = torch.argmin(combined_score, axis=0)  # chọn adapter có tổng nhỏ nhất
+            # best_logits = all_logits[best_adapter_idx, torch.arange(len(best_adapter_idx))].to(self._device)  # lấy logits tương ứng với adapter tốt nhất
+            D_mean = all_distances.mean(dim=0, keepdim=True)               # (1, bs)
+            D_std  = all_distances.std(dim=0, keepdim=True).clamp_min(1e-6)
+            D_z    = (all_distances - D_mean) / D_std  
+            w = F.softmax(-tau * D_z, dim=0)       
+            all_probs = F.softmax(all_logits, dim=2)                       # (A, bs, C)
+            logits = (w.unsqueeze(-1) * all_probs).sum(dim=0)   
             # with torch.no_grad():
             #     features = self._network.backbone(inputs, adapter_id=self._cur_task + 1, train=False)["features"]
             #     logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
             #     logits = F.softmax(logits, dim=1) # là logit của adapter tổng quát đối với batch hiện tại
 
-            min_entropy_logits = F.softmax(best_logits, dim=1)
+            min_entropy_logits = F.softmax(min_entropy_logits, dim=1)
             
-            outputs = min_entropy_logits
+            outputs = min_entropy_logits + logits  
             predicts = torch.topk(outputs, k=self.topk, dim=1, largest=True, sorted=True)[1]
             pred_specific = torch.max(min_entropy_logits,dim=1)[1]
             pred_general = torch.max(logits, dim=1)[1]
