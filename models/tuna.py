@@ -420,22 +420,23 @@ class Learner(BaseLearner):
             all_logits = torch.stack(all_logits).to(self._device)
             all_distances = torch.stack(all_distances).to(self._device)
 
+
+            # min_entropy_indices = torch.argmin(all_entropies, axis=0)  # bs
+            # min_entropy_logits = all_logits[min_entropy_indices, torch.arange(len(min_entropy_indices))].to(
+            #     self._device)
+
+            entropy_min, entropy_max = all_entropies.min(dim=0).values, all_entropies.max(dim=0).values
+            entropy_norm = (all_entropies - entropy_min) / (entropy_max - entropy_min + 1e-12)
+
+            dist_min, dist_max = all_distances.min(dim=0).values, all_distances.max(dim=0).values
+            dist_norm = (all_distances - dist_min) / (dist_max - dist_min + 1e-12)
+
+            #combined_score = entropy_norm + dist_norm
+            combined_score =  entropy_norm
             
-            min_entropy_indices = torch.argmin(all_entropies, axis=0)  # bs
-            min_entropy_logits = all_logits[min_entropy_indices, torch.arange(len(min_entropy_indices))].to(
-                self._device)
-
-            # entropy_min, entropy_max = all_entropies.min(dim=0).values, all_entropies.max(dim=0).values
-            # entropy_norm = (all_entropies - entropy_min) / (entropy_max - entropy_min + 1e-12)
-
-            # dist_min, dist_max = all_distances.min(dim=0).values, all_distances.max(dim=0).values
-            # dist_norm = (all_distances - dist_min) / (dist_max - dist_min + 1e-12)
-
-            # #combined_score = entropy_norm + dist_norm
-            # combined_score =  entropy_norm
+            best_adapter_idx = torch.argmin(combined_score, axis=0)  # chọn adapter có tổng nhỏ nhất
+            min_entropy_logits = all_logits[best_adapter_idx, torch.arange(len(best_adapter_idx))].to(self._device)  # lấy logits tương ứng với adapter tốt nhất
             
-            # best_adapter_idx = torch.argmin(combined_score, axis=0)  # chọn adapter có tổng nhỏ nhất
-            # min_entropy_logits = all_logits[best_adapter_idx, torch.arange(len(best_adapter_idx))].to(self._device)  # lấy logits tương ứng với adapter tốt nhất
             D_mean = all_distances.mean(dim=0, keepdim=True)               # (1, bs)
             D_std  = all_distances.std(dim=0, keepdim=True).clamp_min(1e-6)
             D_z    = (all_distances - D_mean) / D_std  
