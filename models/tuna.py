@@ -419,8 +419,9 @@ class Learner(BaseLearner):
             all_entropies = torch.stack(all_entropies).to(self._device)
             all_logits = torch.stack(all_logits).to(self._device)
             all_distances = torch.stack(all_distances).to(self._device)
-            min_entropy_indices = torch.argmin(all_entropies, axis=0)  # bs
 
+            
+            min_entropy_indices = torch.argmin(all_entropies, axis=0)  # bs
             min_entropy_logits = all_logits[min_entropy_indices, torch.arange(len(min_entropy_indices))].to(
                 self._device)
 
@@ -434,7 +435,7 @@ class Learner(BaseLearner):
             # combined_score =  entropy_norm
             
             # best_adapter_idx = torch.argmin(combined_score, axis=0)  # chọn adapter có tổng nhỏ nhất
-            # best_logits = all_logits[best_adapter_idx, torch.arange(len(best_adapter_idx))].to(self._device)  # lấy logits tương ứng với adapter tốt nhất
+            # min_entropy_logits = all_logits[best_adapter_idx, torch.arange(len(best_adapter_idx))].to(self._device)  # lấy logits tương ứng với adapter tốt nhất
             D_mean = all_distances.mean(dim=0, keepdim=True)               # (1, bs)
             D_std  = all_distances.std(dim=0, keepdim=True).clamp_min(1e-6)
             D_z    = (all_distances - D_mean) / D_std  
