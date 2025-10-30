@@ -404,19 +404,19 @@ class Learner(BaseLearner):
                     logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
 
                 probs = F.softmax(logits, dim=1) # là xác suất của từng adapter đối với batch hiện tại, bao gồm các xác suất thuộc về tất cả các lớp đã học
-                entropy = -torch.sum(probs * torch.log(probs + 1e-10), dim=1)  # entropy của từng adapter đối với batch hiện tại
+                #entropy = -torch.sum(probs * torch.log(probs + 1e-10), dim=1)  # entropy của từng adapter đối với batch hiện tại
                 predicts = torch.topk(
                     logits, k=self.topk, dim=1, largest=True, sorted=True
                 )[1] 
                 distances = self._compute_mahalanobis_distance(features, i)
                 
                 all_predicts.append(predicts.detach())
-                all_entropies.append(entropy.detach())
+                #all_entropies.append(entropy.detach())
                 all_logits.append(logits.detach())
                 all_distances.append(distances.detach())
     
             all_predicts = torch.stack(all_predicts).to(self._device)  # shape: (num_adapters, batch_size, topk)
-            all_entropies = torch.stack(all_entropies).to(self._device)
+            #all_entropies = torch.stack(all_entropies).to(self._device)
             all_logits = torch.stack(all_logits).to(self._device)
             all_distances = torch.stack(all_distances).to(self._device)
 
@@ -425,14 +425,15 @@ class Learner(BaseLearner):
             # min_entropy_logits = all_logits[min_entropy_indices, torch.arange(len(min_entropy_indices))].to(
             #     self._device)
 
-            entropy_min, entropy_max = all_entropies.min(dim=0).values, all_entropies.max(dim=0).values
-            entropy_norm = (all_entropies - entropy_min) / (entropy_max - entropy_min + 1e-12)
+            # entropy_min, entropy_max = all_entropies.min(dim=0).values, all_entropies.max(dim=0).values
+            # entropy_norm = (all_entropies - entropy_min) / (entropy_max - entropy_min + 1e-12)
 
             dist_min, dist_max = all_distances.min(dim=0).values, all_distances.max(dim=0).values
             dist_norm = (all_distances - dist_min) / (dist_max - dist_min + 1e-12)
 
             #combined_score = entropy_norm + dist_norm
-            combined_score =  entropy_norm + dist_norm
+            #combined_score =  entropy_norm + dist_norm
+            combined_score = dist_norm  
             
             best_adapter_idx = torch.argmin(combined_score, axis=0)  # chọn adapter có tổng nhỏ nhất
             min_entropy_logits = all_logits[best_adapter_idx, torch.arange(len(best_adapter_idx))].to(self._device)  # lấy logits tương ứng với adapter tốt nhất
