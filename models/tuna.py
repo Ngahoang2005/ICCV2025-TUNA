@@ -432,7 +432,7 @@ class Learner(BaseLearner):
             dist_norm = (all_distances - dist_min) / (dist_max - dist_min + 1e-12)
 
             #combined_score = entropy_norm + dist_norm
-            combined_score =  entropy_norm
+            combined_score =  entropy_norm + dist_norm
             
             best_adapter_idx = torch.argmin(combined_score, axis=0)  # chọn adapter có tổng nhỏ nhất
             min_entropy_logits = all_logits[best_adapter_idx, torch.arange(len(best_adapter_idx))].to(self._device)  # lấy logits tương ứng với adapter tốt nhất
