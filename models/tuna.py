@@ -419,7 +419,7 @@ class Learner(BaseLearner):
             #all_entropies = torch.stack(all_entropies).to(self._device)
             all_logits = torch.stack(all_logits).to(self._device)
             all_distances = torch.stack(all_distances).to(self._device)
-
+    
 
             # min_entropy_indices = torch.argmin(all_entropies, axis=0)  # bs
             # min_entropy_logits = all_logits[min_entropy_indices, torch.arange(len(min_entropy_indices))].to(
