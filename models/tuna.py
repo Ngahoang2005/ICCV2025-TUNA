@@ -438,12 +438,12 @@ class Learner(BaseLearner):
             best_adapter_idx = torch.argmin(combined_score, axis=0)  # chọn adapter có tổng nhỏ nhất
             min_entropy_logits = all_logits[best_adapter_idx, torch.arange(len(best_adapter_idx))].to(self._device)  # lấy logits tương ứng với adapter tốt nhất
             
-            D_mean = all_distances.mean(dim=0, keepdim=True)               # (1, bs)
-            D_std  = all_distances.std(dim=0, keepdim=True).clamp_min(1e-6)
-            D_z    = (all_distances - D_mean) / D_std  
-            w = F.softmax(-tau * D_z, dim=0)       
-            all_probs = F.softmax(all_logits, dim=2)                       # (A, bs, C)
-            logits = (w.unsqueeze(-1) * all_probs).sum(dim=0)   
+            # D_mean = all_distances.mean(dim=0, keepdim=True)               # (1, bs)
+            # D_std  = all_distances.std(dim=0, keepdim=True).clamp_min(1e-6)
+            # D_z    = (all_distances - D_mean) / D_std  
+            # w = F.softmax(-tau * D_z, dim=0)       
+            # all_probs = F.softmax(all_logits, dim=2)                       # (A, bs, C)
+            # logits = (w.unsqueeze(-1) * all_probs).sum(dim=0)   
             # with torch.no_grad():
             #     features = self._network.backbone(inputs, adapter_id=self._cur_task + 1, train=False)["features"]
             #     logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
@@ -451,7 +451,8 @@ class Learner(BaseLearner):
 
             min_entropy_logits = F.softmax(min_entropy_logits, dim=1)
             
-            outputs = min_entropy_logits + logits  
+            #outputs = min_entropy_logits + logits 
+            outputs = min_entropy_logits
             predicts = torch.topk(outputs, k=self.topk, dim=1, largest=True, sorted=True)[1]
             pred_specific = torch.max(min_entropy_logits,dim=1)[1]
             pred_general = torch.max(logits, dim=1)[1]
