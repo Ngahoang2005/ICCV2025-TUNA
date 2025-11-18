@@ -23,6 +23,11 @@ def get_backbone(args, pretrained=False):
             d_model=768,
             _device=args["device"][0],
             # VPT related
+            adapter_type=args.get("adapter_type", "standard"),
+            adapter_bottleneck=args.get("adapter_bottleneck", args.get("r", 16)),
+            adapter_dropout=args.get("adapter_dropout", 0.1),
+            bilora_dropout=args.get("bilora_dropout", args.get("adapter_dropout", 0.1)),
+            bilora_fusion_init=args.get("bilora_fusion_init", 0.0),
             vpt_on=False,
             vpt_num=0,
         )

@@ -175,7 +175,52 @@ class Adapter(nn.Module):
             output = up
 
         return output
+class BiLoRAAdapter(nn.Module):
+    """Compose two LoRA-style adapters and learn how to fuse them."""
 
+    def __init__(self,
+                 config=None,
+                 d_model=None,
+                 bottleneck=None,
+                 dropout=0.0,
+                 init_option="lora",
+                 adapter_scalar="1.0",
+                 adapter_layernorm_option="none",
+                 second_dropout=None,
+                 fusion_init=0.0):
+        super().__init__()
+        second_dropout = dropout if second_dropout is None else second_dropout
+
+        self.primary = Adapter(
+            config=config,
+            d_model=d_model,
+            bottleneck=bottleneck,
+            dropout=dropout,
+            init_option=init_option,
+            adapter_scalar=adapter_scalar,
+            adapter_layernorm_option=adapter_layernorm_option,
+        )
+        self.secondary = Adapter(
+            config=config,
+            d_model=d_model,
+            bottleneck=bottleneck,
+            dropout=second_dropout,
+            init_option=init_option,
+            adapter_scalar=adapter_scalar,
+            adapter_layernorm_option=adapter_layernorm_option,
+        )
+        # Learnable coefficient (0-1 after sigmoid) for combining the adapters.
+        self.fusion_logit = nn.Parameter(torch.tensor(fusion_init, dtype=torch.float32))
+
+    def forward(self, x, add_residual=True, residual=None):
+        residual = x if residual is None else residual
+        primary = self.primary(x, add_residual=False, residual=residual)
+        secondary = self.secondary(x, add_residual=False, residual=residual)
+        alpha = torch.sigmoid(self.fusion_logit)
+        output = alpha * primary + (1 - alpha) * secondary
+        if add_residual:
+            output = output + residual
+        return output
 
 class Attention(nn.Module):
     def __init__(self, dim, num_heads=8, qkv_bias=False, attn_drop=0., proj_drop=0., ):
@@ -343,12 +388,37 @@ class VisionTransformer(nn.Module):
 
     def init_adapters(self):
         self.cur_adapter = nn.ModuleList()
-        for i in range(len(self.blocks)):
-            adapter = Adapter(self.config, dropout=0.1, bottleneck=16,
-                              init_option="lora",
-                              adapter_scalar="0.1",
-                              adapter_layernorm_option="none",
-                              ).to(self._device)
+        adapter_type = getattr(self.config, "adapter_type", "standard").lower()
+        adapter_dropout = getattr(self.config, "adapter_dropout", 0.1)
+        adapter_bottleneck = getattr(self.config, "adapter_bottleneck", 16)
+        adapter_init = getattr(self.config, "ffn_adapter_init_option", "lora")
+        adapter_scalar = getattr(self.config, "ffn_adapter_scalar", "0.1")
+        adapter_layernorm = getattr(self.config, "ffn_adapter_layernorm_option", "none")
+        bilora_dropout = getattr(self.config, "bilora_dropout", adapter_dropout)
+        bilora_fusion = getattr(self.config, "bilora_fusion_init", 0.0)
+
+        for _ in range(len(self.blocks)):
+            if adapter_type == "bilora":
+                adapter = BiLoRAAdapter(
+                    config=self.config,
+                    dropout=adapter_dropout,
+                    bottleneck=adapter_bottleneck,
+                    init_option=adapter_init,
+                    adapter_scalar=adapter_scalar,
+                    adapter_layernorm_option=adapter_layernorm,
+                    second_dropout=bilora_dropout,
+                    fusion_init=bilora_fusion,
+                ).to(self._device)
+            else:
+                adapter = Adapter(
+                    self.config,
+                    dropout=adapter_dropout,
+                    bottleneck=adapter_bottleneck,
+                    init_option=adapter_init,
+                    adapter_scalar=adapter_scalar,
+                    adapter_layernorm_option=adapter_layernorm,
+                ).to(self._device)
+
             self.cur_adapter.append(adapter)
         self.cur_adapter.requires_grad_(True)
 
