@@ -1,7 +1,7 @@
 {
   "prefix": " ",
   "dataset": "imagenetr",
-  "imagenetr_root": "/kaggle/working",
+  "imagenetr_root": "/kaggle/working/imagenet-r",
   "memory_size": 0,
   "memory_per_class": 0,
   "fixed_memory": false,
