@@ -75,13 +75,23 @@ def _train(args):
             logging.warning("Checkpoint {} not found, starting from scratch".format(resume_checkpoint))
         except Exception as e:
             logging.warning("Failed to load checkpoint {}: {}".format(resume_checkpoint, e))
+    checkpoint_root = args.get("checkpoint_dir") or "/kaggle/working/ICCV2025-TUNA/checkpoints"
+    os.makedirs(checkpoint_root, exist_ok=True)
 
-    checkpoint_prefix = os.path.join(
-        checkpoint_dir,
-        args["model_name"],
-        args["dataset"],
-        str(args["seed"]),
-    )
+    parts = [checkpoint_root]
+
+    for key in ["dataset", "model_name", "seed"]:
+        v = args.get(key)
+        if v is not None:
+            parts.append(str(v))
+
+    checkpoint_prefix = os.path.join(*parts)
+    # checkpoint_prefix = os.path.join(
+    #     checkpoint_dir,
+    #     args["model_name"],
+    #     args["dataset"],
+    #     str(args["seed"]),
+    # )
     if save_checkpoints:
         os.makedirs(checkpoint_prefix, exist_ok=True)
 
