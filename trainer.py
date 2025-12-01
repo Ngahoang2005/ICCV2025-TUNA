@@ -173,14 +173,48 @@ def _train(args):
 def _set_device(args):
     device_type = args["device"]
     gpus = []
+    
+    cuda_available = torch.cuda.is_available()
+    cuda_count = torch.cuda.device_count() if cuda_available else 0
 
     for device in device_type:
-        if device == -1:
-            device = torch.device("cpu")
-        else:
-            device = torch.device("cuda:{}".format(device))
+        if isinstance(device, str):
+            device = device.strip().lower()
+            if device == "cpu":
+                device = -1
+            else:
+                try:
+                    device = int(device)
+                except ValueError:
+                    logging.warning(
+                        "Unrecognized device '%s', defaulting to CPU for this entry.", device
+                    )
+                    device = -1
 
-        gpus.append(device)
+        if device == -1 or device is None:
+            gpus.append(torch.device("cpu"))
+            continue
+
+        if not cuda_available:
+            logging.warning(
+                "CUDA is not available, falling back to CPU for requested device %s.", device
+            )
+            gpus.append(torch.device("cpu"))
+            continue
+
+        if device < 0 or device >= cuda_count:
+            logging.warning(
+                "Requested CUDA device %s is unavailable (available count: %d); using cuda:0 instead.",
+                device,
+                cuda_count,
+            )
+            fallback_device = 0 if cuda_count > 0 else -1
+            gpus.append(
+                torch.device("cuda:0") if fallback_device >= 0 else torch.device("cpu")
+            )
+            continue
+
+        gpus.append(torch.device(f"cuda:{device}"))
 
     args["device"] = gpus
 
