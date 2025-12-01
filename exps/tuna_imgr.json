@@ -36,7 +36,7 @@
   "r": 16,
   "scale": 20.0,
   "m": 0.0,
-  "checkpoint_dir": "./checkpoints",
+  "checkpoint_dir": "/kaggle/working/ICCV2025-TUNA/checkpoints",
   "save_checkpoints": true,
   "resume_checkpoint": null
 }
