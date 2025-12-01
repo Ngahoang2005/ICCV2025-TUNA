@@ -233,7 +233,12 @@ class iImageNetR(iData):
         )
         train_dir = os.path.join(data_root, "train")
         test_dir = os.path.join(data_root, "test")
-        
+        if not os.path.isdir(train_dir) or not os.path.isdir(test_dir):
+            raise FileNotFoundError(
+                "ImageNet-R not found at {}. Set --imagenetr-root or IMAGENETR_ROOT "
+                "to a folder containing 'train' and 'test' splits."
+                .format(data_root)
+            )
         train_dset = datasets.ImageFolder(train_dir)
         test_dset = datasets.ImageFolder(test_dir)
 
