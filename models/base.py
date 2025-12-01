@@ -90,12 +90,47 @@ class BaseLearner(object):
 
 
     def save_checkpoint(self, filename):
+        target_device = self._device if not isinstance(self._device, list) else self._device
+        device = target_device if not isinstance(target_device, list) else target_device[0]
+
         self._network.cpu()
         save_dict = {
             "tasks": self._cur_task,
+            "known_classes": self._known_classes,
+            "total_classes": self._total_classes,
             "model_state_dict": self._network.state_dict(),
+            "data_memory": self._data_memory,
+            "targets_memory": self._targets_memory,
+            "class_means": getattr(self, "_class_means", None),
         }
         torch.save(save_dict, "{}_{}.pkl".format(filename, self._cur_task))
+        if isinstance(self._network, nn.Module):
+            self._network.to(device)
+
+    def load_checkpoint(self, checkpoint_path, map_location=None):
+        map_location = map_location or (
+            self._device if not isinstance(self._device, list) else self._device[0]
+        )
+
+        checkpoint = torch.load(checkpoint_path, map_location=map_location)
+        self._cur_task = checkpoint.get("tasks", checkpoint.get("cur_task", -1))
+        self._known_classes = checkpoint.get("known_classes", 0)
+        self._total_classes = checkpoint.get("total_classes", 0)
+        self._data_memory = checkpoint.get("data_memory", np.array([]))
+        self._targets_memory = checkpoint.get("targets_memory", np.array([]))
+        if checkpoint.get("class_means", None) is not None:
+            self._class_means = checkpoint["class_means"]
+
+        self._network.load_state_dict(checkpoint["model_state_dict"])
+        if isinstance(self._network, nn.Module):
+            self._network.to(map_location)
+
+        logging.info(
+            "Loaded checkpoint from {} (task {}, known_classes {}, total_classes {})".format(
+                checkpoint_path, self._cur_task, self._known_classes, self._total_classes
+            )
+        )
+        return self._cur_task
 
     def after_task(self):
         pass

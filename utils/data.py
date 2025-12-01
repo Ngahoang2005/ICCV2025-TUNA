@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from torchvision import datasets, transforms
 from utils.toolkit import split_images_labels
@@ -225,9 +226,14 @@ class iImageNetR(iData):
 
     def download_data(self):
         # assert 0, "You should specify the folder of your dataset"
-        train_dir = "/data/sunhl/data/imagenet-r/train"
-        test_dir = "/data/sunhl/data/imagenet-r/test"
-
+        data_root = (
+            self.args.get("imagenetr_root")
+            or os.environ.get("IMAGENETR_ROOT")
+            or "/data/sunhl/data/imagenet-r"
+        )
+        train_dir = os.path.join(data_root, "train")
+        test_dir = os.path.join(data_root, "test")
+        
         train_dset = datasets.ImageFolder(train_dir)
         test_dset = datasets.ImageFolder(test_dir)
 

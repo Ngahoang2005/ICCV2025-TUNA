@@ -49,6 +49,10 @@ def _train(args):
     _set_device(args)
     print_args(args)
 
+    checkpoint_dir = args.get("checkpoint_dir", "checkpoints")
+    resume_checkpoint = args.get("resume_checkpoint", None)
+    save_checkpoints = args.get("save_checkpoints", True)
+
     data_manager = DataManager(
         args["dataset"],
         args["shuffle"],
@@ -61,11 +65,32 @@ def _train(args):
     args["nb_classes"] = data_manager.nb_classes # update args
     args["nb_tasks"] = data_manager.nb_tasks
     model = factory.get_model(args["model_name"], args)
+    start_task = 0
+    if resume_checkpoint is not None:
+        try:
+            last_task = model.load_checkpoint(resume_checkpoint)
+            start_task = last_task + 1
+            logging.info("Resuming training from task {}".format(start_task))
+        except FileNotFoundError:
+            logging.warning("Checkpoint {} not found, starting from scratch".format(resume_checkpoint))
+        except Exception as e:
+            logging.warning("Failed to load checkpoint {}: {}".format(resume_checkpoint, e))
+
+    checkpoint_prefix = os.path.join(
+        checkpoint_dir,
+        args["model_name"],
+        args["dataset"],
+        str(args["seed"]),
+    )
+    if save_checkpoints:
+        os.makedirs(checkpoint_prefix, exist_ok=True)
 
     cnn_curve, nme_curve = {"top1": [], "top5": []}, {"top1": [], "top5": []}
     cnn_matrix, nme_matrix = [], []
 
-    for task in range(data_manager.nb_tasks):
+    last_trained_task = start_task - 1
+
+    for task in range(start_task, data_manager.nb_tasks):
         logging.info("All params: {}".format(count_parameters(model._network)))
         logging.info(
             "Trainable params: {}".format(count_parameters(model._network, True))
@@ -73,6 +98,10 @@ def _train(args):
         model.incremental_train(data_manager)
         cnn_accy, nme_accy = model.eval_task()
         model.after_task()
+        last_trained_task = task
+
+        if save_checkpoints:
+            model.save_checkpoint(os.path.join(checkpoint_prefix, "task"))
 
         if nme_accy is not None:
             logging.info("CNN: {}".format(cnn_accy["grouped"]))
@@ -120,22 +149,22 @@ def _train(args):
             logging.info("Average Accuracy (CNN): {} \n".format(sum(cnn_curve["top1"])/len(cnn_curve["top1"])))
 
     if len(cnn_matrix) > 0:
-        np_acctable = np.zeros([task + 1, task + 1])
+        np_acctable = np.zeros([last_trained_task + 1, last_trained_task + 1])
         for idxx, line in enumerate(cnn_matrix):
             idxy = len(line)
             np_acctable[idxx, :idxy] = np.array(line)
         np_acctable = np_acctable.T
-        forgetting = np.mean((np.max(np_acctable, axis=1) - np_acctable[:, task])[:task])
+        forgetting = np.mean((np.max(np_acctable, axis=1) - np_acctable[:, last_trained_task])[:last_trained_task])
         print('Accuracy Matrix (CNN):')
         print(np_acctable)
         logging.info('Forgetting (CNN): {}'.format(forgetting))
     if len(nme_matrix) > 0:
-        np_acctable = np.zeros([task + 1, task + 1])
+        np_acctable = np.zeros([last_trained_task + 1, last_trained_task + 1])
         for idxx, line in enumerate(nme_matrix):
             idxy = len(line)
             np_acctable[idxx, :idxy] = np.array(line)
         np_acctable = np_acctable.T
-        forgetting = np.mean((np.max(np_acctable, axis=1) - np_acctable[:, task])[:task])
+        forgetting = np.mean((np.max(np_acctable, axis=1) - np_acctable[:, last_trained_task])[:last_trained_task])
         print('Accuracy Matrix (NME):')
         print(np_acctable)
         logging.info('Forgetting (NME): {}'.format(forgetting))
