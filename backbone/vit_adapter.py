@@ -470,4 +470,3 @@ def vit_base_patch16_224_in21k_adapter(pretrained=False, **kwargs):
         else:
             p.requires_grad = False
     return model
-

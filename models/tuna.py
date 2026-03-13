@@ -61,7 +61,6 @@ class Learner(BaseLearner):
         #  self._network.backbone.head = nn.Linear(self._network.backbone.num_features, args["nb_classes"], bias=False)
         self.cls_mean = dict()
         self.cls_cov = dict()
-        self.cls_precision=  dict()
         self.cls2task = dict()
         self.use_orth = args["use_orth"]
         self.batch_size = args["batch_size"]
@@ -72,8 +71,7 @@ class Learner(BaseLearner):
         self.args['tuned_epoch'] = args['tuned_epoch']
         self.ca_lr = args["ca_lr"]
         self.crct_epochs = args["crct_epochs"]
-        self.adapter_took = 1
-        self.mahal_entropy_alpha = 0.5
+
         for n, p in self._network.backbone.named_parameters():
             if 'adapter' not in n and 'head' not in n:
                 p.requires_grad = False
@@ -257,20 +255,16 @@ class Learner(BaseLearner):
                 features_per_cls = vectors
                 # print(features_per_cls.shape)
                 self.cls_mean[class_idx] = features_per_cls.mean(dim=0).to(self._device)
-                cov = torch.cov(features_per_cls.T) + (
+                self.cls_cov[class_idx] = torch.cov(features_per_cls.T) + (
                         torch.eye(self.cls_mean[class_idx].shape[-1]) * 1e-4).to(self._device)
-                self.cls_cov[class_idx] = cov
-                self.cls_precision[class_idx] = torch.linalg.pinv(cov.float()).to(self._device)
             elif self.args["ca_storage_efficient_method"] == 'variance':
                 features_per_cls = vectors
                 # print(features_per_cls.shape)
-                
                 self.cls_mean[class_idx] = features_per_cls.mean(dim=0).to(self._device)
-                cov = torch.diag(
+                self.cls_cov[class_idx] = torch.diag(
                     torch.cov(features_per_cls.T) + (torch.eye(self.cls_mean[class_idx].shape[-1]) * 1e-4).to(
                         self._device))
-                self.cls_cov[class_idx] = cov
-                self.cls_precision[class_idx] = torch.linalg.pinv(cov.float()).to(self._device)
+
 
     def classifer_align(self, model):
         for p in self._network.fc.parameters():
@@ -386,73 +380,38 @@ class Learner(BaseLearner):
         self._network.eval()
         y_pred, y_true = [], []
         y_pred_specific, y_pred_general = [], []
-        tau = 1
-        lamda = 0.5
-
         for _, (_, inputs, targets) in enumerate(loader):
             inputs = inputs.to(self._device)
             targets = targets.to(self._device)
-
-            all_predicts = [] # lưu trữ dự đoán của từng adapter đối với batch hiện tại
+            all_predicts = []
             all_entropies = []
             all_logits = []
-            all_distances = [] # lưu trữ khoảng cách mahalanobis của từng adapter đối với batch hiện tại
-
             for i in range(self._cur_task + 1):
                 with torch.no_grad():
                     features = self._network.backbone(inputs, adapter_id=i, train=False)["features"]
                     logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
-
-                probs = F.softmax(logits, dim=1) # là xác suất của từng adapter đối với batch hiện tại, bao gồm các xác suất thuộc về tất cả các lớp đã học
-                #entropy = -torch.sum(probs * torch.log(probs + 1e-10), dim=1)  # entropy của từng adapter đối với batch hiện tại
+                probs = F.softmax(logits, dim=1)
+                entropy = -torch.sum(probs * torch.log(probs + 1e-10), dim=1)  # bs
                 predicts = torch.topk(
                     logits, k=self.topk, dim=1, largest=True, sorted=True
-                )[1] 
-                distances = self._compute_mahalanobis_distance(features, i)
-                
-                all_predicts.append(predicts.detach())
-                #all_entropies.append(entropy.detach())
-                all_logits.append(logits.detach())
-                all_distances.append(distances.detach())
-    
-            all_predicts = torch.stack(all_predicts).to(self._device)  # shape: (num_adapters, batch_size, topk)
-            #all_entropies = torch.stack(all_entropies).to(self._device)
-            all_logits = torch.stack(all_logits).to(self._device)
-            all_distances = torch.stack(all_distances).to(self._device)
-    
+                )[1]
+                all_predicts.append(predicts.cpu().numpy())
+                all_entropies.append(entropy.cpu().numpy())
+                all_logits.append(logits.cpu().numpy())
+            all_predicts = np.array(all_predicts)
+            all_entropies = torch.tensor(all_entropies)
+            all_logits = torch.tensor(all_logits)
+            min_entropy_indices = torch.argmin(all_entropies, axis=0)  # bs
 
-            # min_entropy_indices = torch.argmin(all_entropies, axis=0)  # bs
-            # min_entropy_logits = all_logits[min_entropy_indices, torch.arange(len(min_entropy_indices))].to(
-            #     self._device)
-
-            # entropy_min, entropy_max = all_entropies.min(dim=0).values, all_entropies.max(dim=0).values
-            # entropy_norm = (all_entropies - entropy_min) / (entropy_max - entropy_min + 1e-12)
-
-            dist_min, dist_max = all_distances.min(dim=0).values, all_distances.max(dim=0).values
-            dist_norm = (all_distances - dist_min) / (dist_max - dist_min + 1e-12)
-
-            #combined_score = entropy_norm + dist_norm
-            #combined_score =  entropy_norm + dist_norm
-            combined_score = dist_norm  
-            
-            best_adapter_idx = torch.argmin(combined_score, axis=0)  # chọn adapter có tổng nhỏ nhất
-            min_entropy_logits = all_logits[best_adapter_idx, torch.arange(len(best_adapter_idx))].to(self._device)  # lấy logits tương ứng với adapter tốt nhất
-            
-            # D_mean = all_distances.mean(dim=0, keepdim=True)               # (1, bs)
-            # D_std  = all_distances.std(dim=0, keepdim=True).clamp_min(1e-6)
-            # D_z    = (all_distances - D_mean) / D_std  
-            # w = F.softmax(-tau * D_z, dim=0)       
-            # all_probs = F.softmax(all_logits, dim=2)                       # (A, bs, C)
-            # logits = (w.unsqueeze(-1) * all_probs).sum(dim=0)   
-            # with torch.no_grad():
-            #     features = self._network.backbone(inputs, adapter_id=self._cur_task + 1, train=False)["features"]
-            #     logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
-            #     logits = F.softmax(logits, dim=1) # là logit của adapter tổng quát đối với batch hiện tại
-
+            min_entropy_logits = all_logits[min_entropy_indices, torch.arange(len(min_entropy_indices))].to(
+                self._device)
+            with torch.no_grad():
+                features = self._network.backbone(inputs, adapter_id=self._cur_task + 1, train=False)["features"]
+                logits = self._network.fc(features)["logits"][:, :self._total_classes]*self.args['scale']
+                logits = F.softmax(logits, dim=1)
             min_entropy_logits = F.softmax(min_entropy_logits, dim=1)
-            
-            #outputs = min_entropy_logits + logits 
-            outputs = min_entropy_logits
+
+            outputs = logits + min_entropy_logits
             predicts = torch.topk(outputs, k=self.topk, dim=1, largest=True, sorted=True)[1]
             pred_specific = torch.max(min_entropy_logits,dim=1)[1]
             pred_general = torch.max(logits, dim=1)[1]
@@ -462,21 +421,3 @@ class Learner(BaseLearner):
             y_pred_general.append(pred_general.cpu().numpy())
        
         return np.concatenate(y_pred), np.concatenate(y_true)
-
-    def _compute_mahalanobis_distance(self, features, adapter_id):
-        class_indices = [cls for cls, task in self.cls2task.items() if task == adapter_id]
-        if len(class_indices) == 0:
-            return torch.full((features.size(0),), float('inf'), device=features.device)
-
-        distances = []
-        for class_idx in class_indices:
-            mean = self.cls_mean[class_idx].to(features.device).float()
-            precision = self.cls_precision[class_idx].to(features.device).float()
-            diff = (features - mean).float()
-            maha = torch.einsum('bi,ij,bj->b', diff, precision, diff)
-            distances.append(maha)
-
-        distances = torch.stack(distances)
-        min_distances, _ = torch.min(distances, dim=0)
-        return min_distances
-            
