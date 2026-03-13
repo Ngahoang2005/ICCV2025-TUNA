@@ -380,6 +380,14 @@ class Learner(BaseLearner):
         self._network.eval()
         y_pred, y_true = [], []
         y_pred_specific, y_pred_general = [], []
+
+        # --- [CODE DEBUG] KHỞI TẠO BIẾN ĐẾM ---
+        total_samples = 0
+        wrong_adapter_count = 0
+        close_confusion_count = 0
+        entropy_threshold = 0.1 # Ngưỡng chênh lệch Entropy để coi là "đặc trưng quá giống nhau"
+        # ---------------------------------------
+
         for _, (_, inputs, targets) in enumerate(loader):
             inputs = inputs.to(self._device)
             targets = targets.to(self._device)
@@ -398,10 +406,33 @@ class Learner(BaseLearner):
                 all_predicts.append(predicts.cpu().numpy())
                 all_entropies.append(entropy.cpu().numpy())
                 all_logits.append(logits.cpu().numpy())
+            
             all_predicts = np.array(all_predicts)
             all_entropies = torch.tensor(all_entropies)
-            all_logits = torch.tensor(all_logits)
             min_entropy_indices = torch.argmin(all_entropies, axis=0)  # bs
+
+            # --- [CODE DEBUG] ĐO LƯỜNG CHỌN NHẦM ADAPTER ---
+            # 1. Tìm Task ID chuẩn xác của batch hiện tại dựa vào dict cls2task
+            true_task_ids = torch.tensor([self.cls2task[tgt.item()] for tgt in targets])
+
+            # 2. Tạo mask những ca chọn sai Adapter
+            wrong_mask = (min_entropy_indices != true_task_ids)
+            wrong_adapter_count += wrong_mask.sum().item()
+
+            # 3. Trích xuất mức Entropy của Adapter bị chọn nhầm và Adapter đúng
+            batch_indices = torch.arange(len(targets))
+            chosen_entropies = all_entropies[min_entropy_indices, batch_indices]
+            true_entropies = all_entropies[true_task_ids, batch_indices]
+
+            # Tính độ chênh lệch (margin)
+            entropy_margin = true_entropies - chosen_entropies
+
+            # 4. Lọc ra những ca sai do đặc trưng quá gần nhau (Entropy margin bé hơn ngưỡng)
+            close_mask = wrong_mask & (entropy_margin < entropy_threshold)
+            close_confusion_count += close_mask.sum().item()
+            
+            total_samples += len(targets)
+            # ------------------------------------------------
 
             min_entropy_logits = all_logits[min_entropy_indices, torch.arange(len(min_entropy_indices))].to(
                 self._device)
@@ -419,5 +450,18 @@ class Learner(BaseLearner):
             y_true.append(targets.cpu().numpy())
             y_pred_specific.append(pred_specific.cpu().numpy())
             y_pred_general.append(pred_general.cpu().numpy())
-       
+
+        # --- [CODE DEBUG] IN KẾT QUẢ THỐNG KÊ RA CONSOLE ---
+        if total_samples > 0:
+            print(f"\n[DEBUG ADAPTER SELECTION - ĐANG TEST TẠI TASK {self._cur_task}]")
+            print(f"- Tổng số mẫu đi qua hàm đánh giá: {total_samples}")
+            print(f"- Tỉ lệ chọn nhầm Adapter: {wrong_adapter_count}/{total_samples} ({wrong_adapter_count/total_samples*100:.2f}%)")
+            
+            if wrong_adapter_count > 0:
+                print(f"- Sai do đặc trưng quá giống nhau (Entropy Margin < {entropy_threshold}): "
+                      f"{close_confusion_count}/{wrong_adapter_count} "
+                      f"({close_confusion_count/wrong_adapter_count*100:.2f}% tổng số ca sai)")
+            print("-" * 50)
+        # ---------------------------------------------------
+
         return np.concatenate(y_pred), np.concatenate(y_true)
