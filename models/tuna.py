@@ -408,9 +408,9 @@ class Learner(BaseLearner):
                 all_logits.append(logits.cpu().numpy())
             
             all_predicts = np.array(all_predicts)
-            all_entropies = torch.tensor(all_entropies)
+            all_entropies = torch.tensor(np.array(all_entropies))
+            all_logits = torch.tensor(np.array(all_logits)) # <-- THÊM DÒNG NÀY ĐỂ FIX LỖI
             min_entropy_indices = torch.argmin(all_entropies, axis=0)  # bs
-
             # --- [CODE DEBUG] ĐO LƯỜNG CHỌN NHẦM ADAPTER ---
             # 1. Tìm Task ID chuẩn xác của batch hiện tại dựa vào dict cls2task
             true_task_ids = torch.tensor([self.cls2task[tgt.item()] for tgt in targets])
