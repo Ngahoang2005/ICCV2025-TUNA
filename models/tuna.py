@@ -10,7 +10,10 @@ from utils.inc_net import TUNANet
 from models.base import BaseLearner
 from utils.toolkit import tensor2numpy, target2onehot
 from torch.distributions.multivariate_normal import MultivariateNormal
-
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.manifold import TSNE
+import numpy as np
 num_workers = 8
 
 
@@ -465,3 +468,69 @@ class Learner(BaseLearner):
         # ---------------------------------------------------
 
         return np.concatenate(y_pred), np.concatenate(y_true)
+    def visualize_features(self, loader, save_path="tsne_visualization.png"):
+        
+
+        print("\n[VISUALIZATION] Đang trích xuất đặc trưng để vẽ biểu đồ...")
+        self._network.eval()
+        all_features = []
+        all_labels = []
+        all_tasks = []
+
+        # Chỉ lấy 1 lượng mẫu nhất định để t-SNE chạy nhanh hơn (ví dụ: max 3000 mẫu)
+        max_samples = 3000
+        current_samples = 0
+
+        with torch.no_grad():
+            for _, (_, inputs, targets) in enumerate(loader):
+                if current_samples >= max_samples:
+                    break
+                inputs = inputs.to(self._device)
+                
+                # Dùng Universal Adapter (ID = self._cur_task + 1) để trích xuất đặc trưng
+                features = self._network.backbone(inputs, adapter_id=self._cur_task + 1, train=False)["features"]
+                
+                all_features.append(features.cpu().numpy())
+                all_labels.append(targets.numpy())
+                
+                # Ánh xạ nhãn class sang Task ID thực tế
+                tasks = [self.cls2task[tgt.item()] for tgt in targets]
+                all_tasks.append(tasks)
+                
+                current_samples += len(targets)
+
+        all_features = np.concatenate(all_features, axis=0)
+        all_labels = np.concatenate(all_labels, axis=0)
+        all_tasks = np.concatenate(all_tasks, axis=0)
+
+        print(f"[VISUALIZATION] Đang chạy thuật toán t-SNE trên {len(all_features)} mẫu. Sẽ mất khoảng 1-2 phút...")
+        # Cấu hình t-SNE
+        tsne = TSNE(n_components=2, random_state=42, perplexity=30)
+        features_2d = tsne.fit_transform(all_features)
+
+        # --- BẮT ĐẦU VẼ BIỂU ĐỒ ---
+        plt.figure(figsize=(18, 8))
+
+        # Biểu đồ 1: Tô màu theo Task
+        plt.subplot(1, 2, 1)
+        sns.scatterplot(
+            x=features_2d[:, 0], y=features_2d[:, 1], 
+            hue=all_tasks, palette="tab10", legend="full", alpha=0.7, s=40
+        )
+        plt.title(f"Feature Clusters by TASK (After Task {self._cur_task})", fontsize=14)
+        plt.xlabel("t-SNE Dimension 1")
+        plt.ylabel("t-SNE Dimension 2")
+
+        # Biểu đồ 2: Tô màu theo Class
+        plt.subplot(1, 2, 2)
+        sns.scatterplot(
+            x=features_2d[:, 0], y=features_2d[:, 1], 
+            hue=all_labels, palette="Spectral", legend=False, alpha=0.7, s=40
+        )
+        plt.title(f"Feature Clusters by CLASS (After Task {self._cur_task})", fontsize=14)
+        plt.xlabel("t-SNE Dimension 1")
+        plt.ylabel("t-SNE Dimension 2")
+
+        plt.tight_layout()
+        plt.savefig(save_path, dpi=300)
+        print(f"[VISUALIZATION] Đã lưu biểu đồ tại: {save_path}")
