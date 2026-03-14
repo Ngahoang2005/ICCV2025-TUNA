@@ -124,6 +124,13 @@ class Learner(BaseLearner):
 
         self._train(self.train_loader, self.test_loader)
         #  self.replace_fc()
+        self._train(self.train_loader, self.test_loader)
+        
+        # --- CHÈN CODE GỌI VISUALIZE Ở ĐÂY ---
+        # Vẽ biểu đồ sau khi học xong các Task số 4, 9, và 19
+        if self._cur_task in [1,2,3,4,4,5,6,7,8,9]:
+            self.visualize_features(self.test_loader, save_path=f"tsne_task_{self._cur_task}.png")
+        # ------------------------------------
 
         if len(self._multiple_gpus) > 1:
             self._network = self._network.module
